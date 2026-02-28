@@ -6,6 +6,7 @@ import '../services/auth_service.dart';
 import '../services/youtube_service.dart';
 import '../utils/app_theme.dart';
 import '../utils/translations.dart';
+import '../widgets/gradient_button.dart';
 import 'home_screen.dart';
 
 class UploadScreen extends StatefulWidget {
@@ -16,8 +17,10 @@ class UploadScreen extends StatefulWidget {
 }
 
 class _UploadScreenState extends State<UploadScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _animController;
+  late AnimationController _successAnimController;
+  late Animation<double> _successScale;
   late String _statusText;
   double _progress = 0.0;
   bool _isDone = false;
@@ -32,12 +35,23 @@ class _UploadScreenState extends State<UploadScreen>
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat();
+
+    _successAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _successScale = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+          parent: _successAnimController, curve: Curves.elasticOut),
+    );
+
     _startUpload();
   }
 
   @override
   void dispose() {
     _animController.dispose();
+    _successAnimController.dispose();
     super.dispose();
   }
 
@@ -95,6 +109,7 @@ class _UploadScreenState extends State<UploadScreen>
           _progress = 1.0;
         });
         _animController.stop();
+        _successAnimController.forward();
       }
     } catch (e) {
       final titlePreview = app.project.title.isEmpty
@@ -130,17 +145,20 @@ class _UploadScreenState extends State<UploadScreen>
 
                 // Status icon
                 if (_isDone)
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.green.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.check_circle_rounded,
-                      size: 60,
-                      color: Colors.green,
+                  ScaleTransition(
+                    scale: _successScale,
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: AppTheme.successGreen.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.check_circle_rounded,
+                        size: 60,
+                        color: AppTheme.successGreen,
+                      ),
                     ),
                   )
                 else if (_hasError)
@@ -187,15 +205,15 @@ class _UploadScreenState extends State<UploadScreen>
                 ),
                 const SizedBox(height: 12),
 
-                // Progress bar
+                // Progress bar (thin 4px)
                 if (!_isDone && !_hasError) ...[
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(2),
                     child: LinearProgressIndicator(
                       value: _progress > 0 ? _progress : null,
                       backgroundColor: AppTheme.border,
                       color: AppTheme.primary,
-                      minHeight: 8,
+                      minHeight: 4,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -290,7 +308,7 @@ class _UploadScreenState extends State<UploadScreen>
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppTheme.surface,
+                      color: AppTheme.cardBg,
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Column(
@@ -323,32 +341,40 @@ class _UploadScreenState extends State<UploadScreen>
 
                 // Bottom buttons
                 if (_isDone || _hasError)
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        app.resetProject();
-                        Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(
-                              builder: (_) => const HomeScreen()),
-                          (route) => false,
-                        );
-                      },
-                      icon: Icon(
-                        _isDone ? Icons.add : Icons.refresh,
-                        size: 20,
-                      ),
-                      label: Text(
-                        _isDone ? t('upload_another') : t('try_again'),
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor:
-                            _hasError ? Colors.red : AppTheme.primary,
-                      ),
-                    ),
-                  ),
+                  _hasError
+                      ? SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              app.resetProject();
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                    builder: (_) => const HomeScreen()),
+                                (route) => false,
+                              );
+                            },
+                            icon: const Icon(Icons.refresh, size: 20),
+                            label: Text(t('try_again'),
+                                style: const TextStyle(fontSize: 16)),
+                            style: ElevatedButton.styleFrom(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 16),
+                              backgroundColor: Colors.red,
+                            ),
+                          ),
+                        )
+                      : GradientButton(
+                          text: t('upload_another'),
+                          icon: Icons.add,
+                          onPressed: () {
+                            app.resetProject();
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                  builder: (_) => const HomeScreen()),
+                              (route) => false,
+                            );
+                          },
+                        ),
               ],
             ),
           ),

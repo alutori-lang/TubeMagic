@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, max-width=400, initial-scale=1.0">
+<title>TubeMagic - Full App Mockup</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;min-height:100vh;display:flex;justify-content:center;background:#f5f5f5}
+.phone{width:390px;min-height:844px;background:#fff;position:relative;overflow:hidden}
+
+/* ===== TOP BAR ===== */
+.topbar{display:flex;align-items:center;padding:12px 20px;background:#fff;border-bottom:1px solid #f0f0f0}
+.topbar h1{font-size:20px;font-weight:800;color:#FF4757;flex:1}
+.topbar .user{display:flex;align-items:center;gap:10px}
+.topbar .notif{width:32px;height:32px;border-radius:50%;background:#FFF0F0;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;position:relative}
+.topbar .notif .dot{position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:#FF4757}
+.topbar .avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(145deg,#FF4757,#FF6B81);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600;cursor:pointer}
+
+/* ===== STATS ROW ===== */
+.stats{display:flex;gap:8px;padding:12px 20px}
+.stat{flex:1;background:#FFFAFA;border-radius:12px;padding:10px;text-align:center}
+.stat .num{font-size:18px;font-weight:800;color:#FF4757}
+.stat .lbl{font-size:9px;color:#bbb;margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+
+/* ===== BIG UPLOAD BUTTON ===== */
+.upload-section{display:flex;flex-direction:column;align-items:center;padding:24px 20px 10px}
+.mega-btn{width:140px;height:140px;border-radius:50%;background:linear-gradient(145deg,#FF4757,#FF6B81);
+border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;
+box-shadow:0 12px 35px rgba(255,71,87,0.3);transition:all 0.3s;position:relative}
+.mega-btn:hover{transform:scale(1.06);box-shadow:0 18px 50px rgba(255,71,87,0.4)}
+.mega-btn:active{transform:scale(0.94)}
+.mega-btn .arrow{font-size:36px;color:#fff}
+.mega-btn .btn-text{color:#fff;font-size:11px;font-weight:700;margin-top:2px;letter-spacing:1px}
+.mega-btn::before{content:'';position:absolute;width:100%;height:100%;border-radius:50%;
+background:rgba(255,71,87,0.15);animation:pulse 2s ease-out infinite;pointer-events:none}
+@keyframes pulse{0%{transform:scale(1);opacity:0.6}100%{transform:scale(1.5);opacity:0}}
+.upload-hint{font-size:11px;color:#ccc;margin-top:10px;text-align:center}
+
+/* ===== PROGRESS AREA ===== */
+.progress-area{padding:8px 20px;min-height:50px}
+.prog-bar{height:4px;background:#f5f0f0;border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,#FF4757,#FF6B81);transition:width 3.5s linear;border-radius:2px}
+.prog-info{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+.prog-text{font-size:11px;color:#ccc;font-weight:500}
+.prog-text.active{color:#FF4757}
+.prog-text.done{color:#2ed573}
+.prog-pct{font-size:11px;color:#ccc;font-weight:700}
+
+/* ===== SETTINGS ===== */
+.settings-section{padding:8px 20px 0}
+.settings-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.settings-header h3{font-size:13px;font-weight:700;color:#333}
+.settings-header .edit{font-size:10px;color:#FF4757;font-weight:600;cursor:pointer}
+.s-item{display:flex;align-items:center;padding:11px 0;border-bottom:1px solid #f8f5f5;cursor:pointer;transition:background 0.15s}
+.s-item:last-child{border-bottom:none}
+.s-item:hover{background:#FFFAFA;margin:0 -20px;padding:11px 20px}
+.s-icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-right:10px;background:#FFF0F0}
+.s-icon svg{width:16px;height:16px;fill:none;stroke:#FF4757;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.s-label{flex:1;font-size:13px;color:#333;font-weight:500}
+.s-value{font-size:11px;color:#bbb;font-weight:500}
+.s-arrow{color:#ddd;font-size:14px;margin-left:6px}
+
+/* ===== TOGGLE ITEMS ===== */
+.toggle-section{padding:4px 20px 0}
+.t-item{display:flex;align-items:center;padding:13px 0;border-bottom:1px solid #f8f5f5}
+.t-item:last-child{border-bottom:none}
+.t-icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-right:10px;background:#FFF0F0}
+.t-icon svg{width:16px;height:16px;fill:none;stroke:#FF4757;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.t-label{flex:1;font-size:13px;color:#333;font-weight:500}
+.toggle{width:44px;height:24px;border-radius:12px;background:#ddd;position:relative;cursor:pointer;transition:background 0.3s}
+.toggle.on{background:#FF4757}
+.toggle .knob{width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;
+box-shadow:0 1px 3px rgba(0,0,0,0.2);transition:left 0.3s}
+.toggle.on .knob{left:22px}
+
+/* ===== PUBLISH BUTTON ===== */
+.publish-area{padding:14px 20px}
+.pub-btn{width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(145deg,#FF4757,#FF6B81);
+color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;
+box-shadow:0 8px 25px rgba(255,71,87,0.25);transition:all 0.2s;letter-spacing:0.5px}
+.pub-btn:hover{transform:translateY(-2px);box-shadow:0 12px 35px rgba(255,71,87,0.35)}
+.pub-btn:active{transform:translateY(0)}
+.pub-sub{text-align:center;font-size:10px;color:#ddd;margin-top:6px}
+
+/* ===== REVIEW OVERLAY ===== */
+.review{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:#fff;
+z-index:90;flex-direction:column;overflow-y:auto}
+.review.show{display:flex}
+.review-top{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid #f0f0f0;position:sticky;top:0;background:#fff;z-index:2}
+.review-top .back{font-size:20px;color:#666;cursor:pointer;margin-right:12px}
+.review-top h2{flex:1;font-size:16px;font-weight:700;color:#333}
+.review-top .step{font-size:10px;color:#FF4757;font-weight:600;background:#FFF0F0;padding:4px 10px;border-radius:10px}
+
+.review-content{flex:1;padding:16px}
+
+/* Video thumbnail preview */
+.rv-thumb{width:100%;height:180px;border-radius:12px;background:linear-gradient(135deg,#f0f0f0,#e0e0e0);
+position:relative;overflow:hidden;margin-bottom:16px}
+.rv-thumb .play-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+width:48px;height:48px;border-radius:50%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center}
+.rv-thumb .play-overlay::after{content:'';width:0;height:0;border-left:16px solid #fff;border-top:10px solid transparent;border-bottom:10px solid transparent;margin-left:3px}
+.rv-thumb .dur{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.8);color:#fff;font-size:10px;padding:2px 6px;border-radius:3px}
+.rv-thumb .file-name{position:absolute;bottom:8px;left:8px;color:#fff;font-size:10px;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,0.5)}
+
+/* Generated fields */
+.rv-field{margin-bottom:14px}
+.rv-field-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.rv-field-header .rv-label{font-size:11px;color:#999;font-weight:600;text-transform:uppercase;letter-spacing:1px}
+.rv-field-header .rv-edit{font-size:10px;color:#FF4757;font-weight:600;cursor:pointer;padding:2px 8px;border:1px solid #FFD4D4;border-radius:8px}
+.rv-box{background:#FFFAFA;border:1px solid #f5f0f0;border-radius:10px;padding:12px;font-size:13px;color:#333;line-height:1.5}
+.rv-box.title-box{font-size:14px;font-weight:600;color:#222}
+
+/* Tags */
+.rv-tags{display:flex;flex-wrap:wrap;gap:6px}
+.rv-tag{padding:4px 10px;border-radius:12px;background:#FFF0F0;color:#FF4757;font-size:10px;font-weight:600}
+
+/* AI badge */
+.ai-badge{display:inline-flex;align-items:center;gap:4px;font-size:9px;color:#999;margin-top:8px;background:#f5f5f5;padding:3px 8px;border-radius:8px}
+.ai-badge .spark{color:#FF4757}
+
+/* Review buttons */
+.review-actions{padding:16px;border-top:1px solid #f0f0f0;display:flex;gap:10px;background:#fff;position:sticky;bottom:0}
+.rv-btn-skip{flex:1;padding:12px;border:1px solid #eee;border-radius:12px;background:#fff;color:#999;
+font-size:13px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;text-align:center}
+.rv-btn-skip:hover{background:#f9f9f9}
+.rv-btn-publish{flex:2;padding:12px;border:none;border-radius:12px;background:linear-gradient(145deg,#FF4757,#FF6B81);
+color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Poppins',sans-serif;
+box-shadow:0 4px 15px rgba(255,71,87,0.25);text-align:center}
+.rv-btn-publish:hover{box-shadow:0 6px 20px rgba(255,71,87,0.35)}
+
+/* Video counter in review */
+.rv-counter{text-align:center;font-size:11px;color:#ccc;margin-bottom:14px;font-weight:500}
+.rv-counter span{color:#FF4757;font-weight:700}
+
+/* ===== UPLOAD SUCCESS OVERLAY ===== */
+.overlay{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.97);
+z-index:100;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px}
+.overlay.show{display:flex}
+.overlay .check{width:80px;height:80px;border-radius:50%;background:#2ed573;display:flex;align-items:center;justify-content:center;
+font-size:36px;color:#fff;box-shadow:0 10px 30px rgba(46,213,115,0.3);animation:popIn 0.5s ease}
+@keyframes popIn{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+.overlay h2{font-size:22px;font-weight:700;color:#333;margin-top:20px}
+.overlay p{font-size:13px;color:#aaa;margin-top:6px}
+.overlay .result-stats{display:flex;gap:16px;margin-top:24px}
+.overlay .rs{text-align:center}
+.overlay .rs .rsn{font-size:20px;font-weight:800;color:#2ed573}
+.overlay .rs .rsl{font-size:10px;color:#bbb;margin-top:2px}
+.overlay .done-btn{margin-top:30px;padding:12px 40px;border:none;border-radius:12px;background:#2ed573;color:#fff;
+font-size:14px;font-weight:600;cursor:pointer;font-family:'Poppins',sans-serif;box-shadow:0 6px 20px rgba(46,213,115,0.25)}
+</style>
+</head>
+<body>
+<div class="phone">
+
+<!-- TOP BAR -->
+<div class="topbar">
+<h1>TubeMagic</h1>
+<div class="user">
+<div class="notif">&#128276;<div class="dot"></div></div>
+<div class="avatar">M</div>
+</div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+<div class="stat"><div class="num">127</div><div class="lbl">Published</div></div>
+<div class="stat"><div class="num">14.2K</div><div class="lbl">Views</div></div>
+<div class="stat"><div class="num">892</div><div class="lbl">Subs</div></div>
+</div>
+
+<!-- BIG UPLOAD BUTTON -->
+<div class="upload-section">
+<button class="mega-btn" onclick="startUpload()">
+<span class="arrow">&#11014;</span>
+<span class="btn-text">UPLOAD</span>
+</button>
+<div class="upload-hint">Tap to select videos from your device</div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-area">
+<div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+<div class="prog-info">
+<div class="prog-text" id="progText"></div>
+<div class="prog-pct" id="progPct"></div>
+</div>
+</div>
+
+<!-- SETTINGS -->
+<div class="settings-section">
+<div class="settings-header"><h3>Publishing Settings</h3><span class="edit">Edit All</span></div>
+<div class="s-item"><div class="s-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><span class="s-label">Language</span><span class="s-value">Punjabi</span><span class="s-arrow">&#8250;</span></div>
+<div class="s-item"><div class="s-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div><span class="s-label">Thumbnail</span><span class="s-value">Auto-generate</span><span class="s-arrow">&#8250;</span></div>
+<div class="s-item"><div class="s-icon"><svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></div><span class="s-label">Voice Changer</span><span class="s-value">Original</span><span class="s-arrow">&#8250;</span></div>
+<div class="s-item"><div class="s-icon"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><span class="s-label">Visibility</span><span class="s-value">Public</span><span class="s-arrow">&#8250;</span></div>
+<div class="s-item"><div class="s-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div><span class="s-label">Category</span><span class="s-value">Music</span><span class="s-arrow">&#8250;</span></div>
+</div>
+
+<!-- TOGGLES -->
+<div class="toggle-section">
+<div class="t-item">
+<div class="t-icon"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+<span class="t-label">Review before upload</span>
+<div class="toggle" id="toggleReview" onclick="toggleSwitch('toggleReview')"><div class="knob"></div></div>
+</div>
+<div class="t-item">
+<div class="t-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+<span class="t-label">Made for Kids</span>
+<div class="toggle on" id="toggleKids" onclick="toggleSwitch('toggleKids')"><div class="knob"></div></div>
+</div>
+</div>
+
+<!-- PUBLISH BUTTON -->
+<div class="publish-area">
+<button class="pub-btn" onclick="startUpload()">&#10024; Generate & Publish</button>
+<div class="pub-sub">AI generates title, description, tags & thumbnail</div>
+</div>
+
+<!-- REVIEW OVERLAY -->
+<div class="review" id="review">
+<div class="review-top">
+<span class="back" onclick="closeReview()">&#8592;</span>
+<h2>Review Before Publish</h2>
+<span class="step">1 of 3</span>
+</div>
+<div class="review-content">
+<div class="rv-counter">Reviewing video <span>1</span> of <span>3</span></div>
+
+<div class="rv-thumb">
+<div class="play-overlay"></div>
+<span class="dur">3:42</span>
+<span class="file-name">song_tere_bin.mp4</span>
+</div>
+
+<div class="rv-field">
+<div class="rv-field-header"><span class="rv-label">Title</span><span class="rv-edit">Edit</span></div>
+<div class="rv-box title-box">Tere Bin Nahi Lagda Dil Mera - Full Punjabi Song 2026 | Latest Punjabi Music Video HD</div>
+</div>
+
+<div class="rv-field">
+<div class="rv-field-header"><span class="rv-label">Description</span><span class="rv-edit">Edit</span></div>
+<div class="rv-box">Tere Bin Nahi Lagda Dil Mera - Listen to the latest Punjabi song of 2026. This beautiful romantic track features soulful vocals and heartfelt lyrics...<br><br>#PunjabiSong #LatestPunjabi #TereBin</div>
+</div>
+
+<div class="rv-field">
+<div class="rv-field-header"><span class="rv-label">Tags (42)</span><span class="rv-edit">Edit</span></div>
+<div class="rv-tags">
+<span class="rv-tag">punjabi song</span>
+<span class="rv-tag">tere bin</span>
+<span class="rv-tag">latest 2026</span>
+<span class="rv-tag">romantic</span>
+<span class="rv-tag">music video</span>
+<span class="rv-tag">punjabi music</span>
+<span class="rv-tag">new song</span>
+<span class="rv-tag">dil mera</span>
+<span class="rv-tag">+34 more</span>
+</div>
+</div>
+
+<div class="rv-field">
+<div class="rv-field-header"><span class="rv-label">Thumbnail</span><span class="rv-edit">Change</span></div>
+<div class="rv-thumb" style="height:120px;margin-bottom:0">
+<span class="file-name">Auto-generated thumbnail</span>
+</div>
+</div>
+
+<div class="ai-badge"><span class="spark">&#9733;</span> Generated by AI &middot; Tap Edit to modify</div>
+</div>
+
+<div class="review-actions">
+<button class="rv-btn-skip" onclick="closeReview()">Back</button>
+<button class="rv-btn-publish" onclick="publishFromReview()">Approve & Publish</button>
+</div>
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="overlay" id="overlay">
+<div class="check">&#10003;</div>
+<h2>All Published!</h2>
+<p>Your videos are now live on YouTube</p>
+<div class="result-stats">
+<div class="rs"><div class="rsn">4</div><div class="rsl">Videos</div></div>
+<div class="rs"><div class="rsn">4</div><div class="rsl">Titles</div></div>
+<div class="rs"><div class="rsn">4</div><div class="rsl">Thumbnails</div></div>
+<div class="rs"><div class="rsn">180</div><div class="rsl">Tags</div></div>
+</div>
+<button class="done-btn" onclick="closeOverlay()">Done</button>
+</div>
+
+</div>
+<script>
+let pctTimer;
+function toggleSwitch(id){
+  document.getElementById(id).classList.toggle('on');
+}
+function startUpload(){
+  // Check if review toggle is ON
+  const reviewOn = document.getElementById('toggleReview').classList.contains('on');
+  if(reviewOn){
+    document.getElementById('review').classList.add('show');
+  } else {
+    publishFromReview();
+  }
+}
+function closeReview(){
+  document.getElementById('review').classList.remove('show');
+}
+function publishFromReview(){
+  document.getElementById('review').classList.remove('show');
+
+  const fill=document.getElementById('progFill');
+  const text=document.getElementById('progText');
+  const pct=document.getElementById('progPct');
+  fill.style.transition='width 3.5s linear';
+  fill.style.width='100%';
+  text.className='prog-text active';
+  text.textContent='Publishing videos...';
+
+  let p=0;clearInterval(pctTimer);
+  pctTimer=setInterval(()=>{p+=3;if(p>100)p=100;pct.textContent=p+'%';},105);
+
+  setTimeout(()=>{
+    clearInterval(pctTimer);
+    pct.textContent='100%';
+    fill.style.background='#2ed573';
+    text.className='prog-text done';
+    text.textContent='All videos published!';
+    setTimeout(()=>{document.getElementById('overlay').classList.add('show');},800);
+  },3500);
+}
+function closeOverlay(){
+  document.getElementById('overlay').classList.remove('show');
+  const fill=document.getElementById('progFill');
+  const text=document.getElementById('progText');
+  const pct=document.getElementById('progPct');
+  fill.style.transition='none';fill.style.width='0%';fill.style.background='';
+  text.className='prog-text';text.textContent='';pct.textContent='';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, max-width=400, initial-scale=1.0">
+<title>4 - Mint Fresh</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Nunito',sans-serif;min-height:100vh;display:flex;justify-content:center;background:#F0FFF4}
+.phone{width:390px;min-height:844px;background:#F0FFF4;padding:20px}
+
+.header{text-align:center;padding:20px 0}
+.header h1{font-size:30px;font-weight:800;color:#2D6A4F}
+.header p{font-size:12px;color:#74C69D;margin-top:4px;font-weight:600}
+
+/* Central upload area */
+.upload-area{margin:10px 0 20px;text-align:center}
+.upload-btn{width:160px;height:160px;border-radius:30px;border:none;cursor:pointer;
+background:linear-gradient(145deg,#40C97B,#2D9F5F);display:inline-flex;flex-direction:column;
+align-items:center;justify-content:center;color:#fff;
+box-shadow:0 12px 35px rgba(45,159,95,0.3);transition:all 0.3s}
+.upload-btn:hover{transform:scale(1.06);box-shadow:0 18px 50px rgba(45,159,95,0.4)}
+.upload-btn:active{transform:scale(0.96)}
+.upload-btn .icon{font-size:40px}
+.upload-btn .text{font-size:16px;font-weight:800;margin-top:8px}
+.upload-btn .sub{font-size:10px;opacity:0.8;margin-top:2px}
+
+/* Status */
+.status-area{text-align:center;margin:14px 0}
+.s-bar{width:60%;margin:0 auto;height:4px;background:#D8F3DC;border-radius:2px;overflow:hidden}
+.s-fill{height:100%;width:0%;background:#40C97B;transition:width 3.5s linear;border-radius:2px}
+.s-text{font-size:12px;color:#74C69D;margin-top:6px;min-height:18px;font-weight:600}
+.s-text.active{color:#2D6A4F}
+.s-text.done{color:#40C97B}
+
+/* Settings - 2 column grid with rounded cards */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}
+.g-card{background:#fff;border-radius:16px;padding:16px;cursor:pointer;
+box-shadow:0 2px 8px rgba(0,0,0,0.04);transition:all 0.2s;text-align:center}
+.g-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(45,159,95,0.12)}
+.g-card .g-icon{font-size:24px;margin-bottom:6px}
+.g-card .g-label{font-size:13px;color:#2D6A4F;font-weight:700}
+.g-card .g-value{font-size:11px;color:#95D5B2;margin-top:2px}
+
+.pub-btn{width:100%;padding:16px;border:none;border-radius:16px;
+background:linear-gradient(145deg,#40C97B,#2D9F5F);color:#fff;font-size:16px;font-weight:800;
+cursor:pointer;font-family:'Nunito',sans-serif;margin-top:10px;
+box-shadow:0 6px 20px rgba(45,159,95,0.25);transition:all 0.2s}
+.pub-btn:hover{box-shadow:0 10px 30px rgba(45,159,95,0.35)}
+</style>
+</head>
+<body>
+<div class="phone">
+<div class="header"><h1>TubeMagic</h1><p>Fresh & Simple</p></div>
+<div class="upload-area">
+<button class="upload-btn" onclick="go()">
+<span class="icon">&#11014;</span>
+<span class="text">UPLOAD</span>
+<span class="sub">tap to select</span>
+</button>
+</div>
+<div class="status-area">
+<div class="s-bar"><div class="s-fill" id="sf"></div></div>
+<div class="s-text" id="st"></div>
+</div>
+<div class="grid">
+<div class="g-card"><div class="g-icon">&#127760;</div><div class="g-label">Language</div><div class="g-value">Punjabi</div></div>
+<div class="g-card"><div class="g-icon">&#128444;</div><div class="g-label">Thumbnail</div><div class="g-value">Auto</div></div>
+<div class="g-card"><div class="g-icon">&#127908;</div><div class="g-label">Voice</div><div class="g-value">Original</div></div>
+<div class="g-card"><div class="g-icon">&#128274;</div><div class="g-label">Visibility</div><div class="g-value">Public</div></div>
+<div class="g-card"><div class="g-icon">&#127991;</div><div class="g-label">Category</div><div class="g-value">Music</div></div>
+<div class="g-card"><div class="g-icon">&#128100;</div><div class="g-label">Channel</div><div class="g-value">My Channel</div></div>
+</div>
+<button class="pub-btn" onclick="go()">Publish All</button>
+</div>
+<script>
+function go(){const f=document.getElementById('sf'),t=document.getElementById('st');
+f.style.width='100%';t.className='s-text active';t.textContent='Publishing...';
+setTimeout(()=>{t.className='s-text done';t.textContent='All published!';f.style.background='#2D6A4F';},3500);
+setTimeout(()=>{t.className='s-text';t.textContent='';f.style.width='0%';f.style.background='';},7000);}
+</script>
+</body>
+</html>

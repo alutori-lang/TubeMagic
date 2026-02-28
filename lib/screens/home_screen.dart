@@ -8,6 +8,9 @@ import '../services/ai_service.dart';
 import '../utils/app_theme.dart';
 import '../utils/constants.dart';
 import '../utils/translations.dart';
+import '../widgets/pulsing_upload_button.dart';
+import '../widgets/stats_row.dart';
+import '../widgets/gradient_button.dart';
 import 'voice_changer_screen.dart';
 import 'thumbnail_screen.dart';
 import 'review_screen.dart';
@@ -51,12 +54,41 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     t('app_name'),
                     style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.textPrimary,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.primary,
                     ),
                   ),
                   const Spacer(),
+                  // Notification bell with red dot
+                  Stack(
+                    children: [
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: AppTheme.iconBg,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.notifications_outlined,
+                            size: 18, color: AppTheme.textSecondary),
+                      ),
+                      Positioned(
+                        right: 6,
+                        top: 6,
+                        child: Container(
+                          width: 6,
+                          height: 6,
+                          decoration: const BoxDecoration(
+                            color: AppTheme.primary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 10),
+                  // Avatar with gradient
                   PopupMenuButton<String>(
                     onSelected: (value) {
                       if (value == 'logout') _handleLogout(context, auth);
@@ -82,18 +114,23 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ],
-                    child: CircleAvatar(
-                      radius: 18,
-                      backgroundColor: AppTheme.primary,
-                      backgroundImage: auth.channelAvatar != null
-                          ? NetworkImage(auth.channelAvatar!)
-                          : null,
-                      child: auth.channelAvatar == null
-                          ? const Text('U',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700))
-                          : null,
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: const BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        shape: BoxShape.circle,
+                      ),
+                      child: auth.channelAvatar != null
+                          ? ClipOval(
+                              child: Image.network(auth.channelAvatar!,
+                                  width: 32, height: 32, fit: BoxFit.cover))
+                          : const Center(
+                              child: Text('U',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 12))),
                     ),
                   ),
                 ],
@@ -103,88 +140,79 @@ class _HomeScreenState extends State<HomeScreen> {
             // Content
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Upload Zone
-                    GestureDetector(
-                      onTap: _isPickingFile ? null : () => _pickVideo(app),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 35),
-                        decoration: BoxDecoration(
-                          color: AppTheme.surface,
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(
-                            color: _selectedVideoName != null
-                                ? AppTheme.primary.withValues(alpha: 0.3)
-                                : const Color(0xFFDDDDDD),
-                            width: 2,
-                            style: _selectedVideoName != null
-                                ? BorderStyle.solid
-                                : BorderStyle.none,
+                    // Stats Row (real channel data)
+                    StatsRow(
+                      videos: auth.channelVideos,
+                      views: auth.channelViews,
+                      subscribers: auth.channelSubscribers,
+                    ),
+                    const SizedBox(height: 14),
+
+                    // Big Upload Button
+                    Center(
+                      child: PulsingUploadButton(
+                        onTap: _isPickingFile ? null : () => _pickVideo(app),
+                        isSelected: _selectedVideoName != null,
+                        selectedFileName: _selectedVideoName,
+                      ),
+                    ),
+
+                    // Progress area (when generating)
+                    if (app.isGenerating) ...[
+                      const SizedBox(height: 16),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(2),
+                        child: const LinearProgressIndicator(
+                          backgroundColor: AppTheme.border,
+                          color: AppTheme.primary,
+                          minHeight: 4,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Center(
+                        child: Text(
+                          t('generating'),
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: AppTheme.primary,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        child: Column(
-                          children: [
-                            Icon(
-                              _selectedVideoName != null
-                                  ? Icons.check_circle_rounded
-                                  : Icons.cloud_upload_outlined,
-                              size: 48,
-                              color: _selectedVideoName != null
-                                  ? AppTheme.primary
-                                  : AppTheme.textHint,
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              _selectedVideoName ?? t('upload_video'),
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: _selectedVideoName != null
-                                    ? AppTheme.textPrimary
-                                    : AppTheme.textSecondary,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _selectedVideoName != null
-                                  ? t('tap_to_change')
-                                  : t('tap_to_select'),
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: AppTheme.textHint,
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
+                    ],
 
-                    // Settings label
-                    Padding(
-                      padding: const EdgeInsets.only(left: 4, bottom: 8),
-                      child: Text(
-                        t('settings'),
-                        style: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: AppTheme.textSecondary,
-                          letterSpacing: 1,
+                    const SizedBox(height: 14),
+
+                    // Settings header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Publishing Settings',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.textPrimary,
+                          ),
                         ),
-                      ),
+                        GestureDetector(
+                          onTap: () {},
+                          child: Text(
+                            'Edit All',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.primary,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-
-                    // App Language
-                    _buildOptionTile(
-                      icon: Icons.translate,
-                      label: t('app_language'),
-                      value: _getLanguageName(app.appLocale),
-                      onTap: () => _showAppLanguagePicker(context, app),
-                    ),
+                    const SizedBox(height: 4),
 
                     // Video Language
                     _buildOptionTile(
@@ -258,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       onChanged: (v) => app.setMadeForKids(v),
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 8),
                   ],
                 ),
               ),
@@ -266,33 +294,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
             // Bottom Button
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _selectedVideoName == null || app.isGenerating
-                      ? null
-                      : () => _startProcess(context, app, auth),
-                  icon: app.isGenerating
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Icon(Icons.rocket_launch, size: 20),
-                  label: Text(
-                    app.isGenerating
-                        ? t('generating')
-                        : t('generate_publish'),
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+              child: GradientButton(
+                text: app.isGenerating
+                    ? t('generating')
+                    : t('generate_publish'),
+                subtitle: 'AI generates title, description, tags & thumbnail',
+                icon: app.isGenerating ? null : Icons.auto_awesome,
+                isLoading: app.isGenerating,
+                onPressed: _selectedVideoName == null || app.isGenerating
+                    ? null
+                    : () => _startProcess(context, app, auth),
               ),
             ),
           ],
@@ -301,67 +313,52 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  String _getLanguageName(String code) {
-    for (final lang in AppConstants.languages) {
-      if (lang['code'] == code) return lang['name']!;
-    }
-    return 'English (US)';
-  }
-
   Widget _buildOptionTile({
     required IconData icon,
     required String label,
     required String value,
     required VoidCallback onTap,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Material(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              children: [
-                Container(
-                  width: 34,
-                  height: 34,
-                  decoration: BoxDecoration(
-                    color: AppTheme.iconBg,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(icon, size: 18, color: AppTheme.textSecondary),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: AppTheme.iconBg,
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        label,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: AppTheme.textPrimary,
-                        ),
-                      ),
-                      Text(
-                        value,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppTheme.textHint,
-                        ),
-                      ),
-                    ],
+                child: Icon(icon, size: 16, color: AppTheme.primary),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: AppTheme.textPrimary,
                   ),
                 ),
-                const Icon(Icons.chevron_right,
-                    size: 20, color: AppTheme.textHint),
-              ],
-            ),
+              ),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppTheme.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(width: 6),
+              const Icon(Icons.chevron_right,
+                  size: 14, color: AppTheme.textHint),
+            ],
           ),
         ),
       ),
@@ -375,43 +372,64 @@ class _HomeScreenState extends State<HomeScreen> {
     required ValueChanged<bool> onChanged,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
           children: [
             Container(
-              width: 34,
-              height: 34,
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
                 color: AppTheme.iconBg,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, size: 18, color: AppTheme.textSecondary),
+              child: Icon(icon, size: 16, color: AppTheme.primary),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 label,
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: AppTheme.textPrimary,
                 ),
               ),
             ),
-            Switch(
-              value: value,
-              onChanged: onChanged,
-              activeThumbColor: Colors.white,
-              activeTrackColor: AppTheme.primary,
+            // Custom toggle switch
+            GestureDetector(
+              onTap: () => onChanged(!value),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: 44,
+                height: 24,
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: value ? AppTheme.primary : const Color(0xFFDDDDDD),
+                ),
+                child: AnimatedAlign(
+                  duration: const Duration(milliseconds: 200),
+                  alignment:
+                      value ? Alignment.centerRight : Alignment.centerLeft,
+                  child: Container(
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.15),
+                          blurRadius: 3,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -438,50 +456,6 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
     setState(() => _isPickingFile = false);
-  }
-
-  void _showAppLanguagePicker(BuildContext context, AppProvider app) {
-    final t = Translations.t;
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              t('select_app_language'),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-            ),
-          ),
-          const Divider(height: 1),
-          Flexible(
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: AppConstants.languages.length,
-              itemBuilder: (_, i) {
-                final lang = AppConstants.languages[i];
-                final isSelected = app.appLocale == lang['code'];
-                return ListTile(
-                  title: Text(lang['name']!),
-                  trailing: isSelected
-                      ? const Icon(Icons.check, color: AppTheme.primary)
-                      : null,
-                  onTap: () {
-                    app.setAppLocale(lang['code']!);
-                    Navigator.pop(ctx);
-                  },
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   void _showLanguagePicker(BuildContext context, AppProvider app) {

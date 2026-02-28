@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, max-width=400, initial-scale=1.0">
+<title>2 - Sunrise Orange</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Nunito',sans-serif;min-height:100vh;display:flex;justify-content:center;
+background:linear-gradient(180deg,#FF9A56 0%,#FF6F3C 30%,#fff 30%)}
+.phone{width:390px;min-height:844px;overflow:hidden}
+
+/* Top colored section */
+.top{padding:30px 24px;color:#fff;text-align:center}
+.top h1{font-size:28px;font-weight:800}
+.top p{font-size:12px;opacity:0.85;margin-top:4px}
+
+/* Upload card overlapping */
+.upload-card{margin:-10px 20px 0;background:#fff;border-radius:20px;padding:30px;text-align:center;
+box-shadow:0 10px 40px rgba(255,111,60,0.2);cursor:pointer;transition:all 0.3s}
+.upload-card:hover{transform:translateY(-4px);box-shadow:0 16px 50px rgba(255,111,60,0.3)}
+.upload-circle{width:80px;height:80px;border-radius:50%;background:linear-gradient(145deg,#FF9A56,#FF6F3C);
+margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:32px;color:#fff}
+.upload-card h3{font-size:18px;font-weight:700;color:#333;margin-top:14px}
+.upload-card p{font-size:12px;color:#aaa;margin-top:4px}
+
+/* Progress */
+.prog-area{padding:16px 20px;text-align:center;min-height:50px}
+.prog-bar{height:5px;background:#f0f0f0;border-radius:3px;overflow:hidden;margin:0 20px}
+.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,#FF9A56,#FF6F3C);transition:width 3.5s linear;border-radius:3px}
+.prog-text{font-size:12px;color:#aaa;margin-top:6px}
+.prog-text.active{color:#FF6F3C}
+.prog-text.done{color:#2ed573}
+
+/* Settings list - super clean */
+.settings{padding:10px 24px}
+.s-item{display:flex;align-items:center;padding:14px 0;border-bottom:1px solid #f5f5f5}
+.s-item:last-child{border-bottom:none}
+.s-dot{width:8px;height:8px;border-radius:50%;margin-right:14px}
+.s-item:nth-child(1) .s-dot{background:#FF6F3C}
+.s-item:nth-child(2) .s-dot{background:#FFB347}
+.s-item:nth-child(3) .s-dot{background:#FF8C69}
+.s-item:nth-child(4) .s-dot{background:#FF6348}
+.s-item:nth-child(5) .s-dot{background:#FFA07A}
+.s-item:nth-child(6) .s-dot{background:#E55039}
+.s-label{flex:1;font-size:15px;color:#333;font-weight:600}
+.s-value{font-size:13px;color:#aaa}
+.s-arrow{color:#ddd;font-size:16px;margin-left:6px}
+
+/* Bottom button */
+.bottom{padding:16px 24px}
+.pub-btn{width:100%;padding:16px;border:none;border-radius:14px;
+background:linear-gradient(145deg,#FF9A56,#FF6F3C);color:#fff;font-size:16px;font-weight:700;
+cursor:pointer;font-family:'Nunito',sans-serif;box-shadow:0 6px 20px rgba(255,111,60,0.3);transition:all 0.2s}
+.pub-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(255,111,60,0.4)}
+</style>
+</head>
+<body>
+<div class="phone">
+<div class="top"><h1>TubeMagic</h1><p>Auto publish in 1 tap</p></div>
+<div class="upload-card" onclick="go()">
+<div class="upload-circle">&#11014;</div>
+<h3>Upload & Publish</h3>
+<p>Select your videos</p>
+</div>
+<div class="prog-area">
+<div class="prog-bar"><div class="prog-fill" id="pf"></div></div>
+<div class="prog-text" id="pt"></div>
+</div>
+<div class="settings">
+<div class="s-item"><div class="s-dot"></div><span class="s-label">Language</span><span class="s-value">Punjabi</span><span class="s-arrow">&#8250;</span></div>
+<div class="s-item"><div class="s-dot"></div><span class="s-label">Thumbnail</span><span class="s-value">Auto</span><span class="s-arrow">&#8250;</span></div>
+<div class="s-item"><div class="s-dot"></div><span class="s-label">Voice</span><span class="s-value">Original</span><span class="s-arrow">&#8250;</span></div>
+<div class="s-item"><div class="s-dot"></div><span class="s-label">Visibility</span><span class="s-value">Public</span><span class="s-arrow">&#8250;</span></div>
+<div class="s-item"><div class="s-dot"></div><span class="s-label">Category</span><span class="s-value">Music</span><span class="s-arrow">&#8250;</span></div>
+<div class="s-item"><div class="s-dot"></div><span class="s-label">Channel</span><span class="s-value">My Channel</span><span class="s-arrow">&#8250;</span></div>
+</div>
+<div class="bottom"><button class="pub-btn" onclick="go()">Publish All</button></div>
+</div>
+<script>
+function go(){const p=document.getElementById('pf'),t=document.getElementById('pt');
+p.style.width='100%';t.className='prog-text active';t.textContent='Publishing...';
+setTimeout(()=>{t.className='prog-text done';t.textContent='Done! All published!';p.style.background='#2ed573';},3500);
+setTimeout(()=>{t.className='prog-text';t.textContent='';p.style.width='0%';p.style.background='';},7000);}
+</script>
+</body>
+</html>

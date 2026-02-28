@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, max-width=400, initial-scale=1.0">
+<title>8 - Sky Gradient</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;min-height:100vh;display:flex;justify-content:center;
+background:linear-gradient(180deg,#74b9ff 0%,#a29bfe 100%)}
+.phone{width:390px;min-height:844px;
+background:linear-gradient(180deg,#74b9ff 0%,#a29bfe 50%,#fff 50%);position:relative}
+
+/* Top area on gradient */
+.top{padding:30px 24px;color:#fff;text-align:center}
+.top h1{font-size:30px;font-weight:800;text-shadow:0 2px 10px rgba(0,0,0,0.1)}
+.top p{font-size:12px;opacity:0.9;margin-top:4px}
+
+/* Floating upload card */
+.upload-float{margin:-10px 20px 0;background:#fff;border-radius:24px;padding:32px;text-align:center;
+box-shadow:0 15px 50px rgba(116,185,255,0.25);cursor:pointer;transition:all 0.3s;position:relative;z-index:2}
+.upload-float:hover{transform:translateY(-6px);box-shadow:0 22px 65px rgba(116,185,255,0.35)}
+.upload-float:active{transform:translateY(0)}
+.uf-circle{width:80px;height:80px;border-radius:50%;
+background:linear-gradient(145deg,#74b9ff,#a29bfe);margin:0 auto;
+display:flex;align-items:center;justify-content:center;font-size:34px;color:#fff;
+box-shadow:0 8px 25px rgba(116,185,255,0.35)}
+.upload-float h2{font-size:20px;font-weight:700;color:#2d3436;margin-top:14px}
+.upload-float p{font-size:12px;color:#b2bec3;margin-top:4px}
+
+/* Progress + status */
+.mid{padding:16px 24px;text-align:center}
+.mid-bar{height:4px;background:#f0f0f0;border-radius:2px;overflow:hidden}
+.mid-fill{height:100%;width:0%;background:linear-gradient(90deg,#74b9ff,#a29bfe);transition:width 3.5s linear}
+.mid-text{font-size:12px;color:#b2bec3;margin-top:6px;min-height:18px;font-weight:600}
+.mid-text.active{color:#6c5ce7}
+.mid-text.done{color:#00b894}
+
+/* White section settings */
+.white-section{padding:0 24px}
+.section-label{font-size:10px;color:#b2bec3;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;font-weight:600}
+.s-row{display:flex;align-items:center;padding:13px 0;border-bottom:1px solid #f5f5f5}
+.s-row:last-child{border-bottom:none}
+.s-icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;margin-right:12px}
+.s-row:nth-child(1) .s-icon{background:#dfe6e9;color:#74b9ff}
+.s-row:nth-child(2) .s-icon{background:#ffeaa7;color:#fdcb6e}
+.s-row:nth-child(3) .s-icon{background:#dfe6e9;color:#a29bfe}
+.s-row:nth-child(4) .s-icon{background:#fab1a0;color:#e17055}
+.s-row:nth-child(5) .s-icon{background:#dfe6e9;color:#00cec9}
+.s-row:nth-child(6) .s-icon{background:#c7ecee;color:#0984e3}
+.s-label{flex:1;font-size:14px;color:#2d3436;font-weight:600}
+.s-value{font-size:12px;color:#b2bec3}
+.s-arrow{color:#ddd;font-size:14px;margin-left:6px}
+
+.pub-btn{margin:20px 24px;width:calc(100% - 48px);padding:16px;border:none;border-radius:16px;
+background:linear-gradient(145deg,#74b9ff,#a29bfe);color:#fff;font-size:16px;font-weight:700;
+cursor:pointer;font-family:'Poppins',sans-serif;
+box-shadow:0 8px 25px rgba(116,185,255,0.3);transition:all 0.2s}
+.pub-btn:hover{box-shadow:0 12px 35px rgba(116,185,255,0.4)}
+</style>
+</head>
+<body>
+<div class="phone">
+<div class="top"><h1>TubeMagic</h1><p>Publish with a single tap</p></div>
+<div class="upload-float" onclick="go()">
+<div class="uf-circle">&#11014;</div>
+<h2>Upload & Publish</h2>
+<p>Select your videos</p>
+</div>
+<div class="mid">
+<div class="mid-bar"><div class="mid-fill" id="mf"></div></div>
+<div class="mid-text" id="mt"></div>
+</div>
+<div class="white-section">
+<div class="section-label">Settings</div>
+<div class="s-row"><div class="s-icon">&#127760;</div><span class="s-label">Language</span><span class="s-value">Punjabi</span><span class="s-arrow">&#8250;</span></div>
+<div class="s-row"><div class="s-icon">&#128444;</div><span class="s-label">Thumbnail</span><span class="s-value">Auto</span><span class="s-arrow">&#8250;</span></div>
+<div class="s-row"><div class="s-icon">&#127908;</div><span class="s-label">Voice</span><span class="s-value">Original</span><span class="s-arrow">&#8250;</span></div>
+<div class="s-row"><div class="s-icon">&#128274;</div><span class="s-label">Visibility</span><span class="s-value">Public</span><span class="s-arrow">&#8250;</span></div>
+<div class="s-row"><div class="s-icon">&#127991;</div><span class="s-label">Category</span><span class="s-value">Music</span><span class="s-arrow">&#8250;</span></div>
+<div class="s-row"><div class="s-icon">&#128100;</div><span class="s-label">Channel</span><span class="s-value">My Channel</span><span class="s-arrow">&#8250;</span></div>
+</div>
+<button class="pub-btn" onclick="go()">Publish All</button>
+</div>
+<script>
+function go(){const f=document.getElementById('mf'),t=document.getElementById('mt');
+f.style.width='100%';t.className='mid-text active';t.textContent='Publishing...';
+setTimeout(()=>{t.className='mid-text done';t.textContent='All published!';f.style.background='#00b894';},3500);
+setTimeout(()=>{t.className='mid-text';t.textContent='';f.style.width='0%';f.style.background='';},7000);}
+</script>
+</body>
+</html>

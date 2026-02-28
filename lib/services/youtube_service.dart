@@ -142,6 +142,8 @@ class YoutubeService {
           'name': channel.snippet?.title,
           'avatar': channel.snippet?.thumbnails?.default_?.url,
           'subscribers': channel.statistics?.subscriberCount,
+          'views': channel.statistics?.viewCount,
+          'videos': channel.statistics?.videoCount,
         };
       }
       return {};

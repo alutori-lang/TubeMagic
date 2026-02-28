@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../utils/app_theme.dart';
 import '../utils/translations.dart';
+import '../widgets/gradient_button.dart';
 import 'home_screen.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -24,12 +25,12 @@ class LoginScreen extends StatelessWidget {
                 children: [
                   const Spacer(flex: 2),
 
-                  // Logo
+                  // Logo with gradient
                   Container(
                     width: 90,
                     height: 90,
                     decoration: BoxDecoration(
-                      color: AppTheme.primary,
+                      gradient: AppTheme.primaryGradient,
                       borderRadius: BorderRadius.circular(22),
                       boxShadow: [
                         BoxShadow(
@@ -127,24 +128,13 @@ class LoginScreen extends StatelessWidget {
                   const SizedBox(height: 14),
 
                   // YouTube Connect Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: auth.isLoading
-                          ? null
-                          : () => _handleSignIn(context, auth),
-                      icon: const Icon(Icons.play_arrow_rounded, size: 22),
-                      label: auth.isLoading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : Text(t('connect_youtube')),
-                    ),
+                  GradientButton(
+                    text: t('connect_youtube'),
+                    icon: Icons.play_arrow_rounded,
+                    isLoading: auth.isLoading,
+                    onPressed: auth.isLoading
+                        ? null
+                        : () => _handleSignIn(context, auth),
                   ),
 
                   const Spacer(flex: 2),

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, max-width=400, initial-scale=1.0">
+<title>5 - Purple Dream</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;min-height:100vh;display:flex;justify-content:center;background:#F8F5FF}
+.phone{width:390px;min-height:844px;background:#F8F5FF;padding:20px;display:flex;flex-direction:column}
+
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.header h1{font-size:24px;font-weight:800;color:#5B21B6}
+.pro{font-size:10px;background:#EDE9FE;color:#7C3AED;padding:4px 12px;border-radius:12px;font-weight:600}
+
+/* Hero upload card with gradient border */
+.hero{position:relative;border-radius:24px;padding:3px;
+background:linear-gradient(145deg,#8B5CF6,#A78BFA,#C4B5FD);margin:10px 0;cursor:pointer}
+.hero:hover{transform:translateY(-2px)}
+.hero-inner{background:#fff;border-radius:22px;padding:32px;text-align:center}
+.hero-icon{width:72px;height:72px;border-radius:50%;
+background:linear-gradient(145deg,#8B5CF6,#7C3AED);margin:0 auto;
+display:flex;align-items:center;justify-content:center;font-size:30px;color:#fff;
+box-shadow:0 8px 25px rgba(124,58,237,0.3)}
+.hero-inner h2{font-size:20px;font-weight:700;color:#3B1A80;margin-top:14px}
+.hero-inner p{font-size:12px;color:#A78BFA;margin-top:4px}
+
+/* Status */
+.status-line{padding:10px 0;text-align:center}
+.sl-bar{height:3px;background:#EDE9FE;border-radius:2px;overflow:hidden;width:70%;margin:0 auto}
+.sl-fill{height:100%;width:0%;background:linear-gradient(90deg,#8B5CF6,#7C3AED);transition:width 3.5s linear}
+.sl-text{font-size:12px;color:#A78BFA;margin-top:6px;min-height:18px;font-weight:500}
+.sl-text.active{color:#7C3AED}
+.sl-text.done{color:#10B981}
+
+/* Settings in pill style */
+.settings{flex:1;margin:10px 0}
+.s-pill{display:flex;align-items:center;padding:14px 16px;margin-bottom:8px;
+background:#fff;border-radius:14px;cursor:pointer;transition:all 0.2s;
+box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.s-pill:hover{box-shadow:0 4px 15px rgba(124,58,237,0.1);transform:translateX(4px)}
+.s-pill .p-icon{width:36px;height:36px;border-radius:10px;background:#EDE9FE;
+display:flex;align-items:center;justify-content:center;font-size:16px;margin-right:12px}
+.s-pill .p-label{flex:1;font-size:14px;color:#3B1A80;font-weight:600}
+.s-pill .p-value{font-size:12px;color:#A78BFA;font-weight:500}
+.s-pill .p-arrow{color:#D8B4FE;font-size:16px;margin-left:6px}
+
+.pub-btn{width:100%;padding:16px;border:none;border-radius:14px;
+background:linear-gradient(145deg,#8B5CF6,#7C3AED);color:#fff;font-size:16px;font-weight:700;
+cursor:pointer;font-family:'Poppins',sans-serif;
+box-shadow:0 8px 25px rgba(124,58,237,0.3);transition:all 0.2s}
+.pub-btn:hover{box-shadow:0 12px 35px rgba(124,58,237,0.4)}
+</style>
+</head>
+<body>
+<div class="phone">
+<div class="header"><h1>TubeMagic</h1><span class="pro">PRO</span></div>
+<div class="hero" onclick="go()">
+<div class="hero-inner">
+<div class="hero-icon">&#11014;</div>
+<h2>1-Tap Upload</h2>
+<p>Select videos & publish instantly</p>
+</div>
+</div>
+<div class="status-line">
+<div class="sl-bar"><div class="sl-fill" id="sf"></div></div>
+<div class="sl-text" id="st"></div>
+</div>
+<div class="settings">
+<div class="s-pill"><div class="p-icon">&#127760;</div><span class="p-label">Language</span><span class="p-value">Punjabi</span><span class="p-arrow">&#8250;</span></div>
+<div class="s-pill"><div class="p-icon">&#128444;</div><span class="p-label">Thumbnail</span><span class="p-value">Auto</span><span class="p-arrow">&#8250;</span></div>
+<div class="s-pill"><div class="p-icon">&#127908;</div><span class="p-label">Voice</span><span class="p-value">Original</span><span class="p-arrow">&#8250;</span></div>
+<div class="s-pill"><div class="p-icon">&#128274;</div><span class="p-label">Visibility</span><span class="p-value">Public</span><span class="p-arrow">&#8250;</span></div>
+<div class="s-pill"><div class="p-icon">&#127991;</div><span class="p-label">Category</span><span class="p-value">Music</span><span class="p-arrow">&#8250;</span></div>
+<div class="s-pill"><div class="p-icon">&#128100;</div><span class="p-label">Channel</span><span class="p-value">My Channel</span><span class="p-arrow">&#8250;</span></div>
+</div>
+<button class="pub-btn" onclick="go()">Publish All</button>
+</div>
+<script>
+function go(){const f=document.getElementById('sf'),t=document.getElementById('st');
+f.style.width='100%';t.className='sl-text active';t.textContent='Publishing...';
+setTimeout(()=>{t.className='sl-text done';t.textContent='All published!';f.style.background='#10B981';},3500);
+setTimeout(()=>{t.className='sl-text';t.textContent='';f.style.width='0%';f.style.background='';},7000);}
+</script>
+</body>
+</html>

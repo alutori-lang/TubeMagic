@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, max-width=400, initial-scale=1.0">
+<title>10 - Electric Teal</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;min-height:100vh;display:flex;justify-content:center;background:#F0FDFA}
+.phone{width:390px;min-height:844px;background:#F0FDFA;padding:20px}
+
+.header{display:flex;align-items:center;margin-top:10px;margin-bottom:16px}
+.header h1{font-size:26px;font-weight:900;color:#0F766E;flex:1}
+.header .count{background:#CCFBF1;color:#0D9488;font-size:11px;padding:6px 14px;border-radius:20px;font-weight:700}
+
+/* Upload - full width gradient card */
+.upload{border-radius:20px;padding:32px;text-align:center;cursor:pointer;
+background:linear-gradient(145deg,#14B8A6,#0D9488);color:#fff;
+box-shadow:0 12px 35px rgba(13,148,136,0.25);transition:all 0.3s;margin-bottom:16px}
+.upload:hover{transform:scale(1.02);box-shadow:0 18px 50px rgba(13,148,136,0.35)}
+.upload:active{transform:scale(0.98)}
+.upload .icon{font-size:44px}
+.upload h2{font-size:22px;font-weight:800;margin-top:8px}
+.upload p{font-size:12px;opacity:0.85;margin-top:4px}
+
+/* Progress with percentage */
+.prog-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.prog-bar{flex:1;height:5px;background:#CCFBF1;border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,#14B8A6,#0D9488);transition:width 3.5s linear}
+.prog-pct{font-size:12px;color:#0D9488;font-weight:700;min-width:30px;text-align:right}
+.status{font-size:12px;color:#5EEAD4;min-height:18px;font-weight:600;text-align:center}
+.status.active{color:#0D9488}
+.status.done{color:#059669}
+
+/* Two column cards */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.g-item{background:#fff;border-radius:14px;padding:16px 14px;cursor:pointer;
+transition:all 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.03);display:flex;align-items:center;gap:10px}
+.g-item:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(13,148,136,0.1)}
+.gi-icon{width:36px;height:36px;border-radius:10px;background:#F0FDFA;
+display:flex;align-items:center;justify-content:center;font-size:16px}
+.gi-text .gi-label{font-size:12px;color:#0F766E;font-weight:700}
+.gi-text .gi-value{font-size:10px;color:#5EEAD4;margin-top:1px;font-weight:600}
+
+.pub-btn{width:100%;padding:16px;border:none;border-radius:14px;
+background:linear-gradient(145deg,#14B8A6,#0D9488);color:#fff;font-size:16px;font-weight:800;
+cursor:pointer;font-family:'Inter',sans-serif;
+box-shadow:0 6px 20px rgba(13,148,136,0.25);transition:all 0.2s}
+.pub-btn:hover{box-shadow:0 10px 30px rgba(13,148,136,0.35)}
+</style>
+</head>
+<body>
+<div class="phone">
+<div class="header"><h1>TubeMagic</h1><span class="count">0 in queue</span></div>
+<div class="upload" onclick="go()">
+<div class="icon">&#11014;</div>
+<h2>1-Click Upload</h2>
+<p>Select videos, we handle everything</p>
+</div>
+<div class="prog-row">
+<div class="prog-bar"><div class="prog-fill" id="pf"></div></div>
+<div class="prog-pct" id="pp"></div>
+</div>
+<div class="status" id="st"></div>
+<div class="grid">
+<div class="g-item"><div class="gi-icon">&#127760;</div><div class="gi-text"><div class="gi-label">Language</div><div class="gi-value">Punjabi</div></div></div>
+<div class="g-item"><div class="gi-icon">&#128444;</div><div class="gi-text"><div class="gi-label">Thumbnail</div><div class="gi-value">Auto</div></div></div>
+<div class="g-item"><div class="gi-icon">&#127908;</div><div class="gi-text"><div class="gi-label">Voice</div><div class="gi-value">Original</div></div></div>
+<div class="g-item"><div class="gi-icon">&#128274;</div><div class="gi-text"><div class="gi-label">Visibility</div><div class="gi-value">Public</div></div></div>
+<div class="g-item"><div class="gi-icon">&#127991;</div><div class="gi-text"><div class="gi-label">Category</div><div class="gi-value">Music</div></div></div>
+<div class="g-item"><div class="gi-icon">&#128100;</div><div class="gi-text"><div class="gi-label">Channel</div><div class="gi-value">My Channel</div></div></div>
+</div>
+<button class="pub-btn" onclick="go()">Publish All</button>
+</div>
+<script>
+let timer;
+function go(){const f=document.getElementById('pf'),p=document.getElementById('pp'),s=document.getElementById('st');
+f.style.width='100%';s.className='status active';s.textContent='Publishing...';
+let pct=0;clearInterval(timer);
+timer=setInterval(()=>{pct+=3;if(pct>100)pct=100;p.textContent=pct+'%';},105);
+setTimeout(()=>{clearInterval(timer);p.textContent='100%';s.className='status done';s.textContent='All published!';f.style.background='#059669';},3500);
+setTimeout(()=>{s.className='status';s.textContent='';p.textContent='';f.style.width='0%';f.style.background='';},7000);}
+</script>
+</body>
+</html>

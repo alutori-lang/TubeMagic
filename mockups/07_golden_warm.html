@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, max-width=400, initial-scale=1.0">
+<title>7 - Golden Warm</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;min-height:100vh;display:flex;justify-content:center;background:#FFFBF0}
+.phone{width:390px;min-height:844px;background:#FFFBF0;padding:20px}
+
+.header{display:flex;align-items:center;margin-bottom:20px;margin-top:10px}
+.header h1{font-size:26px;font-weight:800;color:#92400E;flex:1}
+.header .badge{background:#FEF3C7;color:#D97706;font-size:10px;padding:4px 12px;border-radius:10px;font-weight:700}
+
+/* Split hero */
+.hero{display:flex;gap:12px;margin-bottom:16px}
+.hero-main{flex:2;border-radius:20px;padding:28px 20px;text-align:center;cursor:pointer;
+background:linear-gradient(145deg,#F59E0B,#D97706);color:#fff;
+box-shadow:0 10px 30px rgba(245,158,11,0.25);transition:all 0.3s}
+.hero-main:hover{transform:scale(1.02);box-shadow:0 14px 40px rgba(245,158,11,0.35)}
+.hero-main .icon{font-size:36px}
+.hero-main h3{font-size:16px;font-weight:700;margin-top:8px}
+.hero-main p{font-size:11px;opacity:0.8;margin-top:4px}
+.hero-side{flex:1;display:flex;flex-direction:column;gap:12px}
+.hero-stat{flex:1;border-radius:16px;background:#fff;padding:14px;text-align:center;
+box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.hero-stat .num{font-size:22px;font-weight:800;color:#92400E}
+.hero-stat .lbl{font-size:9px;color:#B45309;margin-top:2px;font-weight:600}
+
+/* Progress */
+.prog{height:4px;background:#FEF3C7;border-radius:2px;overflow:hidden;margin-bottom:6px}
+.prog-fill{height:100%;width:0%;background:linear-gradient(90deg,#F59E0B,#D97706);transition:width 3.5s linear}
+.s-text{font-size:12px;color:#B45309;min-height:18px;font-weight:600;text-align:center}
+.s-text.done{color:#059669}
+
+/* Clean list */
+.list{margin:16px 0}
+.list-item{display:flex;align-items:center;padding:13px 14px;background:#fff;border-radius:14px;
+margin-bottom:8px;cursor:pointer;transition:all 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.03)}
+.list-item:hover{transform:translateX(4px);box-shadow:0 3px 12px rgba(245,158,11,0.1)}
+.li-icon{width:34px;height:34px;border-radius:10px;background:#FEF3C7;
+display:flex;align-items:center;justify-content:center;font-size:16px;margin-right:12px}
+.li-label{flex:1;font-size:14px;color:#78350F;font-weight:600}
+.li-value{font-size:12px;color:#B45309}
+.li-arrow{color:#DDD6C5;font-size:14px;margin-left:6px}
+
+.pub-btn{width:100%;padding:16px;border:none;border-radius:14px;
+background:linear-gradient(145deg,#F59E0B,#D97706);color:#fff;font-size:16px;font-weight:700;
+cursor:pointer;font-family:'Inter',sans-serif;
+box-shadow:0 6px 20px rgba(245,158,11,0.25);transition:all 0.2s}
+.pub-btn:hover{box-shadow:0 10px 30px rgba(245,158,11,0.35)}
+</style>
+</head>
+<body>
+<div class="phone">
+<div class="header"><h1>TubeMagic</h1><span class="badge">GOLD</span></div>
+<div class="hero">
+<div class="hero-main" onclick="go()">
+<div class="icon">&#11014;</div>
+<h3>Upload & Go</h3>
+<p>1 tap, all done</p>
+</div>
+<div class="hero-side">
+<div class="hero-stat"><div class="num">48</div><div class="lbl">Published</div></div>
+<div class="hero-stat"><div class="num">12K</div><div class="lbl">Views</div></div>
+</div>
+</div>
+<div class="prog"><div class="prog-fill" id="pf"></div></div>
+<div class="s-text" id="st"></div>
+<div class="list">
+<div class="list-item"><div class="li-icon">&#127760;</div><span class="li-label">Language</span><span class="li-value">Punjabi</span><span class="li-arrow">&#8250;</span></div>
+<div class="list-item"><div class="li-icon">&#128444;</div><span class="li-label">Thumbnail</span><span class="li-value">Auto</span><span class="li-arrow">&#8250;</span></div>
+<div class="list-item"><div class="li-icon">&#127908;</div><span class="li-label">Voice</span><span class="li-value">Original</span><span class="li-arrow">&#8250;</span></div>
+<div class="list-item"><div class="li-icon">&#128274;</div><span class="li-label">Visibility</span><span class="li-value">Public</span><span class="li-arrow">&#8250;</span></div>
+<div class="list-item"><div class="li-icon">&#127991;</div><span class="li-label">Category</span><span class="li-value">Music</span><span class="li-arrow">&#8250;</span></div>
+<div class="list-item"><div class="li-icon">&#128100;</div><span class="li-label">Channel</span><span class="li-value">My Channel</span><span class="li-arrow">&#8250;</span></div>
+</div>
+<button class="pub-btn" onclick="go()">Publish All</button>
+</div>
+<script>
+function go(){const f=document.getElementById('pf'),t=document.getElementById('st');
+f.style.width='100%';t.textContent='Publishing...';
+setTimeout(()=>{t.className='s-text done';t.textContent='All published!';f.style.background='#059669';},3500);
+setTimeout(()=>{t.className='s-text';t.textContent='';f.style.width='0%';f.style.background='';},7000);}
+</script>
+</body>
+</html>

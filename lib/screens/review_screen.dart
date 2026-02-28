@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../services/app_provider.dart';
 import '../utils/app_theme.dart';
 import '../utils/translations.dart';
+import '../widgets/gradient_button.dart';
 import 'upload_screen.dart';
 
 class ReviewScreen extends StatefulWidget {
@@ -203,20 +204,37 @@ class _ReviewScreenState extends State<ReviewScreen> {
             ),
           ),
 
-          // Upload button
+          // Bottom buttons
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () => _proceedToUpload(context, app),
-                icon: const Icon(Icons.cloud_upload, size: 20),
-                label: Text(t('upload_to_youtube'),
-                    style: const TextStyle(fontSize: 16)),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: const BorderSide(color: AppTheme.border),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: Text(t('back'),
+                        style: const TextStyle(
+                            color: AppTheme.textSecondary,
+                            fontWeight: FontWeight.w600)),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 2,
+                  child: GradientButton(
+                    text: t('upload_to_youtube'),
+                    icon: Icons.cloud_upload,
+                    onPressed: () => _proceedToUpload(context, app),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

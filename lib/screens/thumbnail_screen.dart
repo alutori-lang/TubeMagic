@@ -6,6 +6,7 @@ import 'package:video_player/video_player.dart';
 import '../services/app_provider.dart';
 import '../utils/app_theme.dart';
 import '../utils/translations.dart';
+import '../widgets/gradient_button.dart';
 
 class ThumbnailScreen extends StatefulWidget {
   const ThumbnailScreen({super.key});
@@ -106,12 +107,10 @@ class _ThumbnailScreenState extends State<ThumbnailScreen> {
           // Save button
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _selectedOption == null ? null : () => _save(context),
-                child: Text(t('save')),
-              ),
+            child: GradientButton(
+              text: t('save'),
+              icon: Icons.check,
+              onPressed: _selectedOption == null ? null : () => _save(context),
             ),
           ),
         ],

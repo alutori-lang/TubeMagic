@@ -1,21 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Style 2 - Clean White with YouTube Red accents
-  static const Color primary = Color(0xFFFF0000);
-  static const Color primaryLight = Color(0xFFFF4444);
-  static const Color background = Color(0xFFFAFAFA);
+  // Coral Red theme matching mockup
+  static const Color primary = Color(0xFFFF4757);
+  static const Color primaryLight = Color(0xFFFF6B81);
+  static const Color background = Color(0xFFFFFFFF);
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color textPrimary = Color(0xFF111111);
-  static const Color textSecondary = Color(0xFF999999);
-  static const Color textHint = Color(0xFFAAAAAA);
+  static const Color textPrimary = Color(0xFF333333);
+  static const Color textSecondary = Color(0xFFBBBBBB);
+  static const Color textHint = Color(0xFFCCCCCC);
   static const Color border = Color(0xFFF0F0F0);
-  static const Color divider = Color(0xFFE0E0E0);
-  static const Color cardBg = Color(0xFFFFFFFF);
-  static const Color iconBg = Color(0xFFF5F5F5);
+  static const Color divider = Color(0xFFF8F5F5);
+  static const Color cardBg = Color(0xFFFFFAFA);
+  static const Color iconBg = Color(0xFFFFF0F0);
+  static const Color successGreen = Color(0xFF2ED573);
+
+  static const LinearGradient primaryGradient = LinearGradient(
+    colors: [Color(0xFFFF4757), Color(0xFFFF6B81)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 
   static ThemeData get theme => ThemeData(
         useMaterial3: true,
+        textTheme: GoogleFonts.poppinsTextTheme(),
         colorScheme: ColorScheme.fromSeed(
           seedColor: primary,
           primary: primary,
@@ -24,12 +33,12 @@ class AppTheme {
           onSurface: textPrimary,
         ),
         scaffoldBackgroundColor: background,
-        appBarTheme: const AppBarTheme(
+        appBarTheme: AppBarTheme(
           backgroundColor: surface,
           foregroundColor: textPrimary,
           elevation: 0,
           centerTitle: false,
-          titleTextStyle: TextStyle(
+          titleTextStyle: GoogleFonts.poppins(
             color: textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -43,7 +52,7 @@ class AppTheme {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
             ),
-            textStyle: const TextStyle(
+            textStyle: GoogleFonts.poppins(
               fontSize: 15,
               fontWeight: FontWeight.w700,
             ),

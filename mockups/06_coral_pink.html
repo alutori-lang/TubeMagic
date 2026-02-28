@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, max-width=400, initial-scale=1.0">
+<title>6 - Coral Pink</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Nunito',sans-serif;min-height:100vh;display:flex;justify-content:center;background:#FFF5F5}
+.phone{width:390px;min-height:844px;background:#FFF5F5;padding:24px}
+
+.header h1{font-size:26px;font-weight:900;color:#E91E63;text-align:center;margin-top:20px}
+.header p{font-size:11px;color:#F48FB1;text-align:center;margin-top:4px;font-weight:600;letter-spacing:1px}
+
+/* Huge rounded rectangle upload */
+.upload{margin:30px 0;border-radius:28px;padding:40px;text-align:center;
+background:linear-gradient(145deg,#E91E63,#EC407A);color:#fff;cursor:pointer;
+box-shadow:0 14px 40px rgba(233,30,99,0.3);transition:all 0.3s}
+.upload:hover{transform:scale(1.03);box-shadow:0 20px 55px rgba(233,30,99,0.4)}
+.upload:active{transform:scale(0.98)}
+.upload .big-icon{font-size:50px}
+.upload h2{font-size:22px;font-weight:800;margin-top:10px}
+.upload p{font-size:13px;opacity:0.85;margin-top:4px}
+
+/* Animated progress dots */
+.dots{display:flex;justify-content:center;gap:6px;margin:16px 0;min-height:20px}
+.dot{width:8px;height:8px;border-radius:50%;background:#F8BBD0;transition:all 0.3s}
+.dots.active .dot{animation:dotPulse 1.2s ease-in-out infinite}
+.dots.active .dot:nth-child(2){animation-delay:0.2s}
+.dots.active .dot:nth-child(3){animation-delay:0.4s}
+.dots.active .dot:nth-child(4){animation-delay:0.6s}
+.dots.active .dot:nth-child(5){animation-delay:0.8s}
+.dots.done .dot{background:#4CAF50;animation:none}
+@keyframes dotPulse{0%,100%{background:#F8BBD0;transform:scale(1)}50%{background:#E91E63;transform:scale(1.3)}}
+.s-text{text-align:center;font-size:13px;color:#F48FB1;min-height:18px;font-weight:600}
+.s-text.active{color:#E91E63}
+.s-text.done{color:#4CAF50}
+
+/* Settings as horizontal scrollable pills */
+.settings-label{font-size:10px;color:#F48FB1;text-transform:uppercase;letter-spacing:2px;margin:20px 0 10px;font-weight:700}
+.scroll-pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{padding:12px 16px;border-radius:16px;background:#fff;cursor:pointer;
+display:flex;align-items:center;gap:8px;transition:all 0.2s;
+box-shadow:0 2px 8px rgba(233,30,99,0.06)}
+.pill:hover{box-shadow:0 4px 16px rgba(233,30,99,0.12);transform:translateY(-2px)}
+.pill .pi{font-size:16px}
+.pill .pl{font-size:12px;color:#880E4F;font-weight:700}
+.pill .pv{font-size:10px;color:#F48FB1;margin-left:2px}
+
+.pub-btn{width:100%;padding:16px;border:none;border-radius:16px;
+background:linear-gradient(145deg,#E91E63,#EC407A);color:#fff;font-size:16px;font-weight:800;
+cursor:pointer;font-family:'Nunito',sans-serif;margin-top:20px;
+box-shadow:0 8px 25px rgba(233,30,99,0.3);transition:all 0.2s}
+.pub-btn:hover{box-shadow:0 12px 35px rgba(233,30,99,0.4)}
+</style>
+</head>
+<body>
+<div class="phone">
+<div class="header"><h1>TubeMagic</h1><p>Upload made easy</p></div>
+<div class="upload" onclick="go()">
+<div class="big-icon">&#128293;</div>
+<h2>1-Click Upload</h2>
+<p>Select & publish instantly</p>
+</div>
+<div class="dots" id="dots">
+<div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+</div>
+<div class="s-text" id="st"></div>
+<div class="settings-label">Settings</div>
+<div class="scroll-pills">
+<div class="pill"><span class="pi">&#127760;</span><span class="pl">Language</span><span class="pv">Punjabi</span></div>
+<div class="pill"><span class="pi">&#128444;</span><span class="pl">Thumb</span><span class="pv">Auto</span></div>
+<div class="pill"><span class="pi">&#127908;</span><span class="pl">Voice</span><span class="pv">Original</span></div>
+<div class="pill"><span class="pi">&#128274;</span><span class="pl">Privacy</span><span class="pv">Public</span></div>
+<div class="pill"><span class="pi">&#127991;</span><span class="pl">Category</span><span class="pv">Music</span></div>
+<div class="pill"><span class="pi">&#128100;</span><span class="pl">Channel</span><span class="pv">My Ch.</span></div>
+</div>
+<button class="pub-btn" onclick="go()">Publish All</button>
+</div>
+<script>
+function go(){const d=document.getElementById('dots'),t=document.getElementById('st');
+d.className='dots active';t.className='s-text active';t.textContent='Publishing...';
+setTimeout(()=>{d.className='dots done';t.className='s-text done';t.textContent='All published!';},3500);
+setTimeout(()=>{d.className='dots';t.className='s-text';t.textContent='';},7000);}
+</script>
+</body>
+</html>

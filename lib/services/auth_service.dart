@@ -16,6 +16,9 @@ class AuthService extends ChangeNotifier {
   String? _channelName;
   String? _channelAvatar;
   String? _channelId;
+  String? _channelSubscribers;
+  String? _channelViews;
+  String? _channelVideos;
 
   GoogleSignInAccount? get currentUser => _currentUser;
   http.Client? get authClient => _authClient;
@@ -24,6 +27,9 @@ class AuthService extends ChangeNotifier {
   String? get channelName => _channelName;
   String? get channelAvatar => _channelAvatar;
   String? get channelId => _channelId;
+  String? get channelSubscribers => _channelSubscribers;
+  String? get channelViews => _channelViews;
+  String? get channelVideos => _channelVideos;
 
   AuthService() {
     _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
@@ -91,7 +97,11 @@ class AuthService extends ChangeNotifier {
       final info = await YoutubeService.getChannelInfo(_authClient!);
       if (info['id'] != null) {
         _channelId = info['id'];
+        _channelSubscribers = info['subscribers'];
+        _channelViews = info['views'];
+        _channelVideos = info['videos'];
         debugPrint('Channel ID fetched: $_channelId');
+        debugPrint('Channel stats: $_channelVideos videos, $_channelViews views, $_channelSubscribers subs');
         notifyListeners();
       }
     } catch (e) {
@@ -139,6 +149,9 @@ class AuthService extends ChangeNotifier {
     _channelName = null;
     _channelAvatar = null;
     _channelId = null;
+    _channelSubscribers = null;
+    _channelViews = null;
+    _channelVideos = null;
     notifyListeners();
   }
 }
