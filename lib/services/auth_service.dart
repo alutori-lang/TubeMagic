@@ -8,6 +8,7 @@ import 'youtube_service.dart';
 class AuthService extends ChangeNotifier {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: AppConstants.youtubeScopes,
+    serverClientId: '682566361571-1vk8mggcr2k0ooqi2nk879u4443v2eq3.apps.googleusercontent.com',
   );
 
   GoogleSignInAccount? _currentUser;

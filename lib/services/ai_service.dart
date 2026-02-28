@@ -23,9 +23,9 @@ class AiService {
       final fileSize = await file.length();
       debugPrint('Video file size: ${(fileSize / 1024 / 1024).toStringAsFixed(1)} MB');
 
-      // Whisper API limit is 25MB
-      if (fileSize > 25 * 1024 * 1024) {
-        debugPrint('Video file too large for Whisper API (>25MB), skipping transcription');
+      // Skip large files - uploading >10MB on mobile is too slow
+      if (fileSize > 10 * 1024 * 1024) {
+        debugPrint('Video >10MB, skipping transcription for speed');
         return null;
       }
 
@@ -36,7 +36,7 @@ class AiService {
       request.files.add(await http.MultipartFile.fromPath('file', videoPath));
 
       final streamedResponse = await request.send().timeout(
-        const Duration(minutes: 3),
+        const Duration(seconds: 60),
       );
       final response = await http.Response.fromStream(streamedResponse);
 
@@ -81,14 +81,18 @@ class AiService {
     String? videoFileName,
     String? videoFilePath,
     String? channelId,
+    void Function(String status)? onProgress,
   }) async {
     final topic = _extractTopicFromFileName(videoFileName);
 
     // Step 1: Try to transcribe the video audio
     String? transcription;
     if (videoFilePath != null) {
+      onProgress?.call('Analyzing audio...');
       transcription = await transcribeVideo(videoFilePath);
     }
+
+    onProgress?.call('Generating metadata...');
 
     // Step 2: Build the prompt based on whether we have a transcription
     String prompt;
@@ -203,7 +207,7 @@ Return ONLY valid JSON, no other text.
           'Authorization': 'Bearer $_apiKey',
         },
         body: jsonEncode({
-          'model': 'llama-3.3-70b-versatile',
+          'model': 'llama-3.1-8b-instant',
           'messages': [
             {
               'role': 'system',

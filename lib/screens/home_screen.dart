@@ -175,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 8),
                       Center(
                         child: Text(
-                          t('generating'),
+                          app.project.status.isNotEmpty ? app.project.status : t('generating'),
                           style: const TextStyle(
                             fontSize: 11,
                             color: AppTheme.primary,
@@ -638,6 +638,9 @@ class _HomeScreenState extends State<HomeScreen> {
         videoFileName: _selectedVideoName,
         videoFilePath: app.project.videoPath,
         channelId: auth.channelId,
+        onProgress: (status) {
+          app.setStatus(status);
+        },
       );
 
       app.setTitle(metadata['title'] as String);
