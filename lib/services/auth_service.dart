@@ -50,8 +50,12 @@ class AuthService extends ChangeNotifier {
     }
   }
 
+  String? _lastError;
+  String? get lastError => _lastError;
+
   Future<bool> signIn() async {
     _isLoading = true;
+    _lastError = null;
     notifyListeners();
     try {
       final account = await _googleSignIn.signIn();
@@ -62,11 +66,13 @@ class AuthService extends ChangeNotifier {
         notifyListeners();
         return true;
       }
+      _lastError = 'Sign-in cancelled';
       _isLoading = false;
       notifyListeners();
       return false;
     } catch (e) {
       debugPrint('Sign-in error: $e');
+      _lastError = e.toString();
       _isLoading = false;
       notifyListeners();
       return false;

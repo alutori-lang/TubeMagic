@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import '../services/auth_service.dart';
 import '../services/app_provider.dart';
 import '../services/ai_service.dart';
@@ -437,15 +437,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _pickVideo(AppProvider app) async {
     setState(() => _isPickingFile = true);
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.video,
-        allowMultiple: false,
-      );
-      if (result != null && result.files.isNotEmpty) {
-        final file = result.files.first;
-        app.setVideoFile(file.path!);
+      final picker = ImagePicker();
+      final video = await picker.pickVideo(source: ImageSource.gallery);
+      if (video != null) {
+        app.setVideoFile(video.path);
         setState(() {
-          _selectedVideoName = file.name;
+          _selectedVideoName = video.name;
         });
       }
     } catch (e) {

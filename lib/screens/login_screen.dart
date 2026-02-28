@@ -164,10 +164,12 @@ class LoginScreen extends StatelessWidget {
         MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
     } else if (context.mounted) {
+      final errorMsg = auth.lastError ?? Translations.t('sign_in_failed');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(Translations.t('sign_in_failed')),
+          content: Text('${Translations.t('sign_in_failed')}: $errorMsg'),
           backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
         ),
       );
     }
