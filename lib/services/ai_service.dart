@@ -23,9 +23,9 @@ class AiService {
       final fileSize = await file.length();
       debugPrint('Video file size: ${(fileSize / 1024 / 1024).toStringAsFixed(1)} MB');
 
-      // Skip large files - uploading >10MB on mobile is too slow
-      if (fileSize > 10 * 1024 * 1024) {
-        debugPrint('Video >10MB, skipping transcription for speed');
+      // Whisper API limit is 25MB
+      if (fileSize > 25 * 1024 * 1024) {
+        debugPrint('Video >25MB, skipping transcription (Whisper limit)');
         return null;
       }
 
@@ -36,7 +36,7 @@ class AiService {
       request.files.add(await http.MultipartFile.fromPath('file', videoPath));
 
       final streamedResponse = await request.send().timeout(
-        const Duration(seconds: 60),
+        const Duration(minutes: 3),
       );
       final response = await http.Response.fromStream(streamedResponse);
 
