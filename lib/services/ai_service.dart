@@ -207,7 +207,7 @@ Return ONLY valid JSON, no other text.
           'Authorization': 'Bearer $_apiKey',
         },
         body: jsonEncode({
-          'model': 'llama-3.1-8b-instant',
+          'model': 'llama-3.3-70b-versatile',
           'messages': [
             {
               'role': 'system',
