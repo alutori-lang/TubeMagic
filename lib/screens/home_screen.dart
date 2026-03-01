@@ -806,6 +806,7 @@ class _HomeScreenState extends State<HomeScreen> {
         videoFileName: videoName,
         videoFilePath: videoPath,
         channelId: auth.channelId,
+        channelName: auth.channelName,
         preTranscriptionResult: preResult,
         onProgress: (status) {
           app.setStatus(status);

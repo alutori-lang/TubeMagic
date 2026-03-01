@@ -100,6 +100,7 @@ class _BatchUploadScreenState extends State<BatchUploadScreen> {
         videoFileName: vs.name,
         videoFilePath: vs.path,
         channelId: auth.channelId,
+        channelName: auth.channelName,
         preTranscriptionResult: transcription,
         onProgress: (_) {},
       );

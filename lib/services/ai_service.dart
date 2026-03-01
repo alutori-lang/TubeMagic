@@ -362,6 +362,72 @@ class AiService {
     return name;
   }
 
+  /// Detects if the filename is a real video title (downloaded from social media)
+  /// vs a camera/phone-generated filename like VID_20240315_143022.mp4
+  static bool _isRealVideoTitle(String? fileName) {
+    if (fileName == null || fileName.isEmpty) return false;
+
+    // Remove file extension
+    String name = fileName.replaceAll(RegExp(r'\.[^.]+$'), '').trim();
+    if (name.isEmpty || name.length < 4) return false;
+
+    // Camera/phone patterns - these are NOT real titles
+    final cameraPatterns = [
+      RegExp(r'^VID[-_]', caseSensitive: false),           // VID_20240315
+      RegExp(r'^IMG[-_]', caseSensitive: false),           // IMG_1234
+      RegExp(r'^MOV[-_]?', caseSensitive: false),          // MOV_0042, MOV0042
+      RegExp(r'^VIDEO[-_]', caseSensitive: false),         // VIDEO_20240315
+      RegExp(r'^REC[-_]', caseSensitive: false),           // REC_20240315
+      RegExp(r'^SVID[-_]', caseSensitive: false),          // SVID_20240315
+      RegExp(r'^DSC[-_]', caseSensitive: false),           // DSC_0001
+      RegExp(r'^DCIM[-_]', caseSensitive: false),          // DCIM_0001
+      RegExp(r'^WP[-_]\d', caseSensitive: false),          // WP_20240315
+      RegExp(r'^PXL[-_]', caseSensitive: false),           // PXL_20240315 (Pixel phones)
+      RegExp(r'^Screen[-\s]?Record', caseSensitive: false), // Screen Recording
+      RegExp(r'^Screenrecord', caseSensitive: false),       // Screenrecord
+      RegExp(r'^InShot[-_]', caseSensitive: false),         // InShot_20240315
+      RegExp(r'^trim[-_.]', caseSensitive: false),          // trim.VID
+      RegExp(r'^\d{8}[-_]\d{4,6}$'),                       // 20240315_143022 (pure timestamp)
+      RegExp(r'^\d{10,}$'),                                 // 1710500000000 (epoch)
+      RegExp(r'^video[-_]?\d+', caseSensitive: false),      // video_001, video1
+      RegExp(r'^recording[-_]?\d', caseSensitive: false),   // recording_001
+      RegExp(r'^[\d\s_\-().]+$'),                           // Only numbers, spaces, underscores
+    ];
+
+    for (final pattern in cameraPatterns) {
+      if (pattern.hasMatch(name)) {
+        debugPrint('FILENAME DETECT: "$name" = CAMERA (matched: ${pattern.pattern})');
+        return false;
+      }
+    }
+
+    // Check if the name has real words (at least 2 words with 2+ letters each)
+    final words = name
+        .replaceAll(RegExp(r'[_\-\.]'), ' ')
+        .split(RegExp(r'\s+'))
+        .where((w) => w.length >= 2 && RegExp(r'[a-zA-Z\u0600-\uFE00\u0900-\u097F\u0A00-\u0A7F\u4E00-\u9FFF\u3040-\u309F\uAC00-\uD7AF]').hasMatch(w))
+        .toList();
+
+    if (words.length >= 2) {
+      debugPrint('FILENAME DETECT: "$name" = REAL TITLE (${words.length} real words)');
+      return true;
+    }
+
+    debugPrint('FILENAME DETECT: "$name" = CAMERA (not enough real words)');
+    return false;
+  }
+
+  /// Extracts the clean title from a social-media-downloaded filename
+  static String _extractRealTitle(String fileName) {
+    // Remove extension
+    String name = fileName.replaceAll(RegExp(r'\.[^.]+$'), '');
+    // Replace underscores/dashes with spaces
+    name = name.replaceAll(RegExp(r'[_]'), ' ');
+    // Clean up extra spaces
+    name = name.replaceAll(RegExp(r'\s+'), ' ').trim();
+    return name;
+  }
+
   /// Generates title, description, tags, and hashtags for a video
   /// Uses Whisper transcription when available for content-aware metadata
   static Future<Map<String, dynamic>> generateVideoMetadata({
@@ -371,10 +437,13 @@ class AiService {
     String? videoFileName,
     String? videoFilePath,
     String? channelId,
+    String? channelName,
     Map<String, String>? preTranscriptionResult,
     void Function(String status)? onProgress,
   }) async {
     final topic = _extractTopicFromFileName(videoFileName);
+    final hasRealTitle = _isRealVideoTitle(videoFileName);
+    final realTitle = hasRealTitle ? _extractRealTitle(videoFileName!) : '';
 
     // Step 1: Use pre-cached transcription or transcribe now
     String? transcription;
@@ -396,10 +465,76 @@ class AiService {
 
     onProgress?.call('Generating metadata...');
 
-    // Step 2: Build the prompt - ask LLM for PARTS, we build title in Dart
+    // Step 2: Build the prompt based on filename type
+    final safeChannelName = (channelName != null && channelName.isNotEmpty) ? channelName : '';
     String prompt;
-    if (transcription != null && transcription.isNotEmpty) {
-      // Extract first ~11 words from transcription
+
+    if (hasRealTitle) {
+      // ===== REAL TITLE MODE: filename is from social media download =====
+      debugPrint('MODE: REAL TITLE from social media -> "$realTitle"');
+
+      // Extract first 2 words from the real title for tag #1
+      final titleWords = realTitle.split(RegExp(r'\s+'));
+      final first2Words = titleWords.take(2).join(' ');
+
+      prompt = '''
+You are a YouTube SEO expert with deep knowledge of artists, singers, speakers, and creators worldwide.
+
+VIDEO TITLE (from filename): "$realTitle"
+${transcription != null ? 'AUDIO TRANSCRIPTION:\n"""\n$transcription\n"""' : ''}
+DETECTED LANGUAGE: $detectedLanguage
+Category: $categoryName
+Uploader's channel name: "$safeChannelName"
+
+The video title "$realTitle" is the REAL title. Use it EXACTLY as the YouTube title.
+
+IMPORTANT - ARTIST/SPEAKER IDENTIFICATION:
+If you can identify the singer/artist/speaker/creator from the title or transcription, you MUST:
+1. Know EXACTLY what type of artist they are (folk singer, pop singer, naat khawan, qawwal, rapper, motivational speaker, etc.)
+2. Know their REAL biography: where they are from, what genre they actually perform, what they are famous for
+3. Do NOT guess or assume their genre. For example:
+   - Talib Hussain Dard = Punjabi FOLK singer from Pakistan, known for dard-bhare (painful/emotional) Punjabi folk songs. He is NOT a Sufi singer.
+   - Nusrat Fateh Ali Khan = Qawwali singer (Sufi music)
+   - Atif Aslam = Pakistani pop/playback singer
+   - Tony Robbins = American motivational speaker about personal development
+4. If you are NOT 100% sure about the artist, write a GENERIC description without labeling their specific genre.
+
+Return this EXACT JSON structure:
+{
+  "title_suffix": "1-3 attractive, click-worthy words to ADD AFTER the original title. Based on the content type and culture. Examples: if punjabi song → 'Punjabi Beautiful Song' or 'Saraiki Culture Song'. If naat → 'Beautiful Naat Sharif'. If motivational → 'Incredible True Story' or 'Must Watch'. If hindi song → 'Hindi Romantic Song'. Match the language/culture of the content.",
+  "singer_or_speaker": "Full name of the artist/speaker identified from title and audio. Empty string if unknown.",
+  "artist_type": "Their EXACT real type: folk singer, pop singer, naat khawan, qawwal, rapper, classical singer, motivational speaker, life coach, comedian, etc. Be ACCURATE. Empty if unknown.",
+  "artist_bio": "A 2-3 sentence ACCURATE biography of the artist. Where they are from, what genre they ACTUALLY perform, what they are famous for. Do NOT invent facts. Empty if unknown.",
+  "content_type": "song OR naat OR qawwali OR folk OR speech OR motivational OR interview OR talk OR podcast OR news OR tutorial OR vlog OR remix OR mashup",
+  "content_genre": "The ACCURATE specific genre: punjabi folk, punjabi pop, islamic naat, sufi qawwali, hindi film songs, urdu ghazal, english motivational, cooking tutorial, etc.",
+  "description": "Write a rich 500+ char YouTube description. Start with the title. Then write about the artist using their REAL biography (artist_bio). Then describe the content. If you know the artist, write: who they are, where they are from, their actual genre, and why people love them. Include relevant lyrics from transcription if available. No hashtags. All in Latin A-Z.",
+  "tags": ["SEE RULES BELOW for tag order"],
+  "hashtags": ["8-10 hashtags without # symbol"]
+}
+
+CRITICAL TAG RULES (follow this EXACT order):
+- Tag 1: "$first2Words" (first 2 words of the title)
+- Tag 2: "$safeChannelName" (the uploader's channel name)
+- Tag 3: The artist/speaker name (ONLY if identified, skip if unknown)
+- Tags 4-10: Genre-specific tags based on the REAL genre (not guessed). Examples:
+  * Punjabi folk singer → "punjabi folk", "folk songs", "punjabi music", "desi folk", "new folk song"
+  * Naat khawan → "naat sharif", "islamic naat", "naat 2026", "beautiful naat", "naat khawan"
+  * Qawwal → "qawwali", "sufi music", "sufi qawwali", "dhamaal"
+  * Motivational speaker → "motivational", "motivation", "self improvement", then topic-specific tags
+  * Hindi pop singer → "hindi songs", "bollywood", "hindi pop", "new hindi song"
+  * Tutorial → "tutorial", "how to", specific subject tags
+- Tags 11-40: More related viral/trending tags for the REAL content type and culture
+- Each tag max 15 chars, total all tags under 500 chars
+
+RULES:
+- title_suffix: Generate 1-3 ATTRACTIVE words that make people want to click. Must match the culture and content type. NOT generic words like "video" or "2026". Think: what would make someone click THIS video?
+- NEVER label an artist with a wrong genre. If unsure, use generic terms like "singer" or "artist"
+- ALL output in Latin A-Z letters only (romanize any non-Latin text)
+- Return ONLY valid JSON
+''';
+    } else if (transcription != null && transcription.isNotEmpty) {
+      // ===== CAMERA MODE WITH TRANSCRIPTION: use first 11 words =====
+      debugPrint('MODE: CAMERA filename, using transcription for title');
       final allWords = transcription.split(RegExp(r'\s+'));
       final first11Words = allWords.take(11).join(' ');
       debugPrint('FIRST 11 WORDS FOR TITLE: $first11Words');
@@ -414,6 +549,7 @@ $transcription
 
 DETECTED LANGUAGE: $detectedLanguage
 Category: $categoryName
+Uploader's channel name: "$safeChannelName"
 
 Return this EXACT JSON structure:
 
@@ -436,7 +572,8 @@ CRITICAL RULES:
 - Return ONLY valid JSON
 ''';
     } else {
-      // No transcription available - use file name based approach
+      // ===== CAMERA MODE WITHOUT TRANSCRIPTION: use filename topic =====
+      debugPrint('MODE: CAMERA filename, no transcription, using topic');
       prompt = '''
 You are a YouTube SEO expert. Generate optimized metadata for a YouTube video.
 
@@ -482,9 +619,11 @@ Return ONLY valid JSON, no other text.
           'messages': [
             {
               'role': 'system',
-              'content': transcription != null
-                  ? 'You are the world\'s best YouTube SEO expert. ABSOLUTE RULE: The title MUST start with the FIRST 11 WORDS from the video transcription, romanized to Latin A-Z. Copy the actual spoken/sung words - NEVER replace them with summary words like "Mousiqi", "Music", "Song". The detected audio language tells you the culture. Nationality must match language (Urdu=Pakistani, Punjabi=Pakistani/Indian, Arabic=Arab). ALL output romanized Latin A-Z only. JSON only.'
-                  : 'You are the world\'s best YouTube SEO expert. Your goal: make videos GO VIRAL with perfect titles, descriptions, and tags. CRITICAL: ALL output in ROMANIZED Latin letters (A-Z) only. No native scripts. Respond with valid JSON only.',
+              'content': hasRealTitle
+                  ? 'You are the world\'s best YouTube SEO expert AND music/entertainment encyclopedia. The user has a video downloaded from social media with a REAL title in the filename. Use that title exactly. You MUST identify the artist/singer/speaker accurately. CRITICAL: You must know the artist\'s REAL genre, REAL biography, and where they are from. NEVER guess genres - Talib Hussain Dard is a Punjabi FOLK singer not Sufi, Nusrat Fateh Ali Khan is a Qawwal, etc. If you don\'t know an artist well, use generic terms. Write accurate biographies in descriptions. ALL output romanized Latin A-Z only. JSON only.'
+                  : transcription != null
+                      ? 'You are the world\'s best YouTube SEO expert. ABSOLUTE RULE: The title MUST start with the FIRST 11 WORDS from the video transcription, romanized to Latin A-Z. Copy the actual spoken/sung words - NEVER replace them with summary words like "Mousiqi", "Music", "Song". The detected audio language tells you the culture. Nationality must match language (Urdu=Pakistani, Punjabi=Pakistani/Indian, Arabic=Arab). ALL output romanized Latin A-Z only. JSON only.'
+                      : 'You are the world\'s best YouTube SEO expert. Your goal: make videos GO VIRAL with perfect titles, descriptions, and tags. CRITICAL: ALL output in ROMANIZED Latin letters (A-Z) only. No native scripts. Respond with valid JSON only.',
             },
             {'role': 'user', 'content': prompt},
           ],
@@ -529,8 +668,49 @@ Return ONLY valid JSON, no other text.
       );
     }
 
-    // BUILD TITLE IN DART from LLM parts (LLM can't mess this up)
-    if (transcription != null && transcription.isNotEmpty) {
+    // BUILD TITLE IN DART from LLM parts
+    if (hasRealTitle) {
+      // ===== REAL TITLE MODE: use filename + attractive suffix =====
+      final titleSuffix = (metadata['title_suffix'] as String?)?.trim() ?? '';
+      String finalRealTitle = realTitle;
+      if (titleSuffix.isNotEmpty) {
+        finalRealTitle = '$realTitle | $titleSuffix';
+      }
+      // Keep title under 100 chars
+      if (finalRealTitle.length > 100) {
+        finalRealTitle = finalRealTitle.substring(0, 100).trim();
+      }
+      metadata['title'] = finalRealTitle;
+      debugPrint('REAL TITLE MODE - Original: "$realTitle" + Suffix: "$titleSuffix" = "$finalRealTitle"');
+
+      // Ensure tags follow the required order: first2words, channelName, artist, genre tags
+      final titleWords = realTitle.split(RegExp(r'\s+'));
+      final first2Words = titleWords.take(2).join(' ');
+      final singerSpeaker = (metadata['singer_or_speaker'] as String?)?.trim() ?? '';
+
+      // Rebuild tags with correct order if LLM didn't follow instructions
+      if (metadata['tags'] != null && metadata['tags'] is List) {
+        final llmTags = (metadata['tags'] as List).map((t) => t.toString().trim()).where((t) => t.isNotEmpty).toList();
+        final orderedTags = <String>[];
+
+        // Tag 1: First 2 words of title
+        if (first2Words.isNotEmpty) orderedTags.add(first2Words);
+        // Tag 2: Channel name
+        if (safeChannelName.isNotEmpty) orderedTags.add(safeChannelName);
+        // Tag 3: Singer/speaker name
+        if (singerSpeaker.isNotEmpty) orderedTags.add(singerSpeaker);
+        // Tags 4+: LLM genre-specific tags (skip duplicates of first 3)
+        for (final tag in llmTags) {
+          if (!orderedTags.any((t) => t.toLowerCase() == tag.toLowerCase())) {
+            orderedTags.add(tag);
+          }
+        }
+        metadata['tags'] = orderedTags;
+      }
+
+      debugPrint('REAL TITLE TAGS: ${metadata['tags']}');
+    } else if (transcription != null && transcription.isNotEmpty) {
+      // ===== CAMERA MODE: build title from transcription =====
       final firstWords = (metadata['first_words_romanized'] as String?)?.trim() ?? '';
       final singerSpeaker = (metadata['singer_or_speaker'] as String?)?.trim() ?? '';
       final contentType = (metadata['content_type'] as String?)?.trim() ?? 'song';
