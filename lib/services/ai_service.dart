@@ -30,29 +30,53 @@ class AiService {
         return null;
       }
 
-      // ISO 639-1 code -> human-readable language name
+      // ISO 639-1 code -> human-readable language name (ALL Whisper-supported + extras)
       const langNames = {
-        'ur': 'urdu', 'hi': 'hindi', 'pa': 'punjabi', 'ar': 'arabic',
-        'fa': 'persian', 'bn': 'bengali', 'ta': 'tamil', 'te': 'telugu',
-        'mr': 'marathi', 'gu': 'gujarati', 'kn': 'kannada', 'ml': 'malayalam',
-        'ne': 'nepali', 'si': 'sinhala', 'my': 'burmese', 'km': 'khmer',
-        'th': 'thai', 'lo': 'lao', 'vi': 'vietnamese', 'id': 'indonesian',
-        'ms': 'malay', 'tl': 'tagalog', 'jw': 'javanese', 'su': 'sundanese',
-        'en': 'english', 'es': 'spanish', 'fr': 'french', 'de': 'german',
-        'it': 'italian', 'pt': 'portuguese', 'nl': 'dutch', 'pl': 'polish',
-        'ru': 'russian', 'uk': 'ukrainian', 'cs': 'czech', 'sk': 'slovak',
-        'ro': 'romanian', 'hu': 'hungarian', 'bg': 'bulgarian', 'hr': 'croatian',
-        'sr': 'serbian', 'sl': 'slovenian', 'da': 'danish', 'sv': 'swedish',
-        'no': 'norwegian', 'fi': 'finnish', 'el': 'greek', 'tr': 'turkish',
-        'az': 'azerbaijani', 'ka': 'georgian', 'hy': 'armenian',
-        'he': 'hebrew', 'yi': 'yiddish', 'am': 'amharic', 'sw': 'swahili',
-        'ha': 'hausa', 'yo': 'yoruba', 'ig': 'igbo', 'so': 'somali',
-        'wo': 'wolof', 'sn': 'shona', 'zu': 'zulu', 'xh': 'xhosa',
-        'rw': 'kinyarwanda', 'lg': 'luganda', 'ak': 'akan',
-        'ee': 'ewe', 'ln': 'lingala', 'tw': 'twi', 'mg': 'malagasy',
-        'ny': 'chichewa', 'st': 'sesotho', 'tn': 'setswana',
+        // South Asia
+        'ur': 'urdu', 'hi': 'hindi', 'pa': 'punjabi', 'sd': 'sindhi',
+        'bn': 'bengali', 'ta': 'tamil', 'te': 'telugu', 'mr': 'marathi',
+        'gu': 'gujarati', 'kn': 'kannada', 'ml': 'malayalam', 'as': 'assamese',
+        'ne': 'nepali', 'si': 'sinhala', 'sa': 'sanskrit', 'ps': 'pashto',
+        // Middle East & North Africa
+        'ar': 'arabic', 'fa': 'persian', 'he': 'hebrew', 'yi': 'yiddish',
+        'ku': 'kurdish', 'mt': 'maltese',
+        // Southeast Asia & Pacific
+        'my': 'burmese', 'km': 'khmer', 'th': 'thai', 'lo': 'lao',
+        'vi': 'vietnamese', 'id': 'indonesian', 'ms': 'malay',
+        'tl': 'tagalog', 'jw': 'javanese', 'su': 'sundanese',
+        'mi': 'maori', 'haw': 'hawaiian',
+        // East Asia
         'zh': 'chinese', 'ja': 'japanese', 'ko': 'korean',
-        'mn': 'mongolian', 'kk': 'kazakh', 'uz': 'uzbek',
+        'mn': 'mongolian', 'bo': 'tibetan',
+        // Central Asia
+        'kk': 'kazakh', 'uz': 'uzbek', 'tg': 'tajik', 'tk': 'turkmen',
+        'tt': 'tatar', 'ba': 'bashkir',
+        // Western Europe
+        'en': 'english', 'es': 'spanish', 'fr': 'french', 'de': 'german',
+        'it': 'italian', 'pt': 'portuguese', 'nl': 'dutch', 'ca': 'catalan',
+        'gl': 'galician', 'eu': 'basque', 'oc': 'occitan',
+        'lb': 'luxembourgish', 'br': 'breton', 'cy': 'welsh',
+        'is': 'icelandic', 'fo': 'faroese',
+        // Northern Europe
+        'da': 'danish', 'sv': 'swedish', 'no': 'norwegian', 'nn': 'nynorsk',
+        'fi': 'finnish', 'et': 'estonian', 'lt': 'lithuanian', 'lv': 'latvian',
+        // Eastern Europe & Balkans
+        'pl': 'polish', 'cs': 'czech', 'sk': 'slovak', 'hu': 'hungarian',
+        'ro': 'romanian', 'bg': 'bulgarian', 'ru': 'russian', 'uk': 'ukrainian',
+        'be': 'belarusian', 'hr': 'croatian', 'sr': 'serbian', 'sl': 'slovenian',
+        'bs': 'bosnian', 'mk': 'macedonian', 'sq': 'albanian',
+        // Caucasus & Turkey
+        'tr': 'turkish', 'az': 'azerbaijani', 'ka': 'georgian', 'hy': 'armenian',
+        'el': 'greek',
+        // Africa
+        'am': 'amharic', 'sw': 'swahili', 'ha': 'hausa', 'yo': 'yoruba',
+        'ig': 'igbo', 'so': 'somali', 'wo': 'wolof', 'sn': 'shona',
+        'zu': 'zulu', 'xh': 'xhosa', 'rw': 'kinyarwanda', 'lg': 'luganda',
+        'ak': 'akan', 'ee': 'ewe', 'ln': 'lingala', 'tw': 'twi',
+        'mg': 'malagasy', 'ny': 'chichewa', 'st': 'sesotho', 'tn': 'setswana',
+        'af': 'afrikaans',
+        // Caribbean
+        'ht': 'haitian creole',
       };
 
       // ATTEMPT 1: No language forced, let Whisper auto-detect
@@ -232,27 +256,52 @@ class AiService {
   /// Get retry languages based on detected script
   static List<String> _getRetryLanguages(String detectedScript) {
     switch (detectedScript) {
-      case 'urdu':    return ['ur', 'ar', 'fa'];           // Arabic script
-      case 'hindi':   return ['hi', 'mr', 'ne', 'sa'];     // Devanagari
-      case 'punjabi': return ['pa', 'hi'];                  // Gurmukhi
-      case 'bengali': return ['bn', 'hi'];
-      case 'tamil':   return ['ta', 'hi'];
-      case 'telugu':  return ['te', 'hi'];
-      case 'kannada': return ['kn', 'hi'];
-      case 'malayalam': return ['ml', 'hi'];
-      case 'burmese': return ['my'];
-      case 'khmer':   return ['km'];
-      case 'thai':    return ['th'];
-      case 'georgian': return ['ka'];
-      case 'armenian': return ['hy'];
-      case 'hebrew':  return ['he', 'yi'];
-      case 'amharic': return ['am', 'so', 'sw'];
-      case 'russian': return ['ru', 'uk', 'bg', 'sr'];     // Cyrillic
-      case 'greek':   return ['el'];
-      case 'chinese': return ['zh', 'ja', 'ko'];           // CJK
-      case 'turkish': return ['tr', 'az'];
-      case 'english': return ['en', 'es', 'fr', 'pt', 'de', 'it', 'nl', 'pl', 'ro', 'id', 'ms', 'tl', 'sw', 'vi', 'wo', 'yo', 'ha', 'ig', 'sn', 'zu', 'xh', 'lg', 'ak', 'ee', 'ln', 'ny', 'st', 'mg'];
-      default:        return ['en', 'ur', 'hi', 'ar', 'es', 'fr', 'pt', 'sw', 'yo', 'ha', 'wo', 'zh', 'ru', 'tr', 'ko', 'ja'];
+      // Arabic script: Urdu, Arabic, Persian, Pashto, Sindhi, Kurdish, Saraiki(=sd)
+      case 'urdu':      return ['ur', 'ar', 'fa', 'ps', 'sd', 'ku'];
+      // Devanagari: Hindi, Marathi, Nepali, Sanskrit, Gujarati
+      case 'hindi':     return ['hi', 'mr', 'ne', 'sa', 'gu'];
+      case 'punjabi':   return ['pa', 'hi', 'sd'];  // Gurmukhi (Saraiki close to Punjabi)
+      case 'bengali':   return ['bn', 'as', 'hi'];  // Bengali + Assamese
+      case 'tamil':     return ['ta', 'si', 'ml'];   // Tamil, Sinhala, Malayalam
+      case 'telugu':    return ['te', 'kn', 'hi'];
+      case 'kannada':   return ['kn', 'te', 'hi'];
+      case 'malayalam': return ['ml', 'ta', 'hi'];
+      case 'burmese':   return ['my', 'th'];
+      case 'khmer':     return ['km', 'th', 'vi'];
+      case 'thai':      return ['th', 'lo'];
+      case 'georgian':  return ['ka'];
+      case 'armenian':  return ['hy'];
+      case 'hebrew':    return ['he', 'yi'];
+      // Ethiopic: Amharic + East African languages
+      case 'amharic':   return ['am', 'so', 'sw', 'ha'];
+      // Cyrillic: Russian, Ukrainian, Belarusian, Bulgarian, Serbian, Macedonian, Kazakh, Mongolian
+      case 'russian':   return ['ru', 'uk', 'be', 'bg', 'sr', 'mk', 'kk', 'mn', 'tt', 'ba', 'tg'];
+      case 'greek':     return ['el'];
+      // CJK: Chinese, Japanese, Korean
+      case 'chinese':   return ['zh', 'ja', 'ko'];
+      // Turkish + Turkic languages
+      case 'turkish':   return ['tr', 'az', 'tk', 'uz'];
+      // Latin script: European, African, Southeast Asian, Balkan, Caribbean
+      case 'english':   return [
+        // Major European
+        'en', 'es', 'fr', 'pt', 'de', 'it', 'nl',
+        // Balkan & Eastern Europe
+        'sq', 'bs', 'hr', 'sl', 'ro', 'hu', 'pl', 'cs', 'sk',
+        // Nordic & Baltic
+        'da', 'sv', 'no', 'fi', 'et', 'lt', 'lv', 'is',
+        // African (Latin script)
+        'sw', 'wo', 'yo', 'ha', 'ig', 'sn', 'zu', 'xh', 'af',
+        'lg', 'ak', 'ee', 'ln', 'ny', 'st', 'mg', 'rw',
+        // Southeast Asian (Latin script)
+        'id', 'ms', 'tl', 'vi',
+        // Others
+        'ht', 'mt', 'ca', 'gl', 'eu', 'cy',
+      ];
+      // Unknown script: try most common world languages
+      default: return [
+        'en', 'ur', 'hi', 'ar', 'es', 'fr', 'pt', 'sw', 'yo', 'ha', 'wo',
+        'zh', 'ru', 'tr', 'ko', 'ja', 'id', 'bn', 'pa', 'sq', 'ro', 'de',
+      ];
     }
   }
 
