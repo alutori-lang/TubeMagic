@@ -1,0 +1,209 @@
+============================================================
+  TUBEROCKET - GOOGLE PLAY CONSOLE LISTING
+  Copia-incolla queste informazioni nel Play Console
+============================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  APP NAME (30 chars max)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TubeRocket
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SHORT DESCRIPTION (80 chars max) - ENGLISH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+AI-powered YouTube uploader: auto titles, tags, descriptions & thumbnails.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SHORT DESCRIPTION - ITALIANO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Carica video su YouTube con AI: titoli, tag, descrizioni e miniature automatici.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FULL DESCRIPTION - ENGLISH (4000 chars max)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Launch your YouTube videos like a rocket! TubeRocket is the smartest way to upload videos to YouTube — powered by AI that does the hard work for you.
+
+WHAT TUBEROCKET DOES:
+Just select your video and tap LAUNCH. TubeRocket's AI will automatically:
+
+• Generate an SEO-optimized title that gets clicks
+• Write a compelling description with keywords
+• Create relevant tags for maximum discoverability
+• Design an eye-catching thumbnail
+• Upload everything directly to your YouTube channel
+
+NO MORE MANUAL WORK:
+Stop spending hours writing titles and descriptions. TubeRocket uses advanced AI (powered by Groq) to analyze your video content and create professional metadata in seconds.
+
+SMART FEATURES:
+• AI Transcription: Automatically understands what your video is about
+• Smart Title Detection: If your video already has a good title, TubeRocket keeps it
+• Voice Changer: Preview different TTS voices for your content
+• Batch Upload: Upload multiple videos at once with AI-generated metadata for each
+• Review Mode: Check and edit everything before publishing
+• 18 Languages: Full multilingual support — create content in any language
+
+PRIVACY & CONTROL:
+• Choose Public, Unlisted, or Private upload
+• Made for Kids toggle
+• Review before upload option
+• Full control over generated content — edit anything before publishing
+
+SUPPORTED LANGUAGES:
+English, Italian, Spanish, French, German, Portuguese, Hindi, Arabic, Japanese, Korean, Chinese, Russian, Turkish, Dutch, Polish, Urdu, Bengali, Punjabi
+
+HOW IT WORKS:
+1. Sign in with your Google/YouTube account
+2. Select a video from your device
+3. Choose your language and category
+4. Tap LAUNCH ROCKET
+5. AI generates title, description, tags & thumbnail
+6. Review and publish — done!
+
+TubeRocket is perfect for:
+• YouTubers who want to save time
+• Content creators managing multiple channels
+• Anyone who wants professional metadata without the effort
+
+Download TubeRocket and launch your YouTube career today!
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FULL DESCRIPTION - ITALIANO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Lancia i tuoi video su YouTube come un razzo! TubeRocket è il modo più intelligente per caricare video su YouTube — con l'AI che fa il lavoro pesante al posto tuo.
+
+COSA FA TUBEROCKET:
+Seleziona il tuo video e tocca LANCIA. L'AI di TubeRocket genererà automaticamente:
+
+• Un titolo ottimizzato per la SEO che attira clic
+• Una descrizione avvincente con parole chiave
+• Tag pertinenti per la massima visibilità
+• Una miniatura accattivante
+• Carica tutto direttamente sul tuo canale YouTube
+
+BASTA LAVORO MANUALE:
+Smetti di perdere ore a scrivere titoli e descrizioni. TubeRocket usa AI avanzata (powered by Groq) per analizzare il contenuto del tuo video e creare metadati professionali in pochi secondi.
+
+FUNZIONALITÀ SMART:
+• Trascrizione AI: Capisce automaticamente di cosa parla il tuo video
+• Rilevamento Titolo Smart: Se il tuo video ha già un buon titolo, TubeRocket lo mantiene
+• Cambio Voce: Anteprima di diverse voci TTS per i tuoi contenuti
+• Upload Multiplo: Carica più video contemporaneamente con metadati AI per ciascuno
+• Modalità Revisione: Controlla e modifica tutto prima di pubblicare
+• 18 Lingue: Supporto multilingue completo — crea contenuti in qualsiasi lingua
+
+PRIVACY E CONTROLLO:
+• Scegli tra Pubblico, Non in elenco o Privato
+• Toggle "Fatto per bambini"
+• Opzione revisione prima dell'upload
+• Controllo totale sui contenuti generati — modifica tutto prima di pubblicare
+
+COME FUNZIONA:
+1. Accedi con il tuo account Google/YouTube
+2. Seleziona un video dal tuo dispositivo
+3. Scegli lingua e categoria
+4. Tocca LANCIA ROCKET
+5. L'AI genera titolo, descrizione, tag e miniatura
+6. Rivedi e pubblica — fatto!
+
+TubeRocket è perfetto per:
+• YouTuber che vogliono risparmiare tempo
+• Creator che gestiscono più canali
+• Chiunque voglia metadati professionali senza sforzo
+
+Scarica TubeRocket e lancia la tua carriera su YouTube oggi!
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  CATEGORY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Video Players & Editors
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  CONTENT RATING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Violence: No
+- Sexual Content: No
+- Language: No
+- Controlled Substance: No
+- Gambling: No
+- User interaction: Yes (uploads to YouTube)
+- Shares location: No
+- Contains ads: No
+→ Expected rating: PEGI 3 / Everyone
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  DATA SAFETY FORM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Does your app collect or share any of the required user data types?
+→ YES
+
+DATA COLLECTED:
+1. Name (from Google Sign-In)
+   - Purpose: App functionality
+   - Is it shared? No
+   - Is it required? Yes
+   - Encrypted in transit? Yes
+
+2. Email address (from Google Sign-In)
+   - Purpose: Account management
+   - Is it shared? No
+   - Is it required? Yes
+   - Encrypted in transit? Yes
+
+3. Videos (user-selected for upload)
+   - Purpose: App functionality (upload to YouTube)
+   - Is it shared? Yes (with YouTube)
+   - Is it required? Yes
+   - Encrypted in transit? Yes
+
+4. Audio (extracted for AI transcription)
+   - Purpose: App functionality
+   - Is it shared? Yes (with Groq API for transcription)
+   - Is it required? No (optional feature)
+   - Encrypted in transit? Yes
+
+DATA NOT COLLECTED:
+- Location
+- Financial info
+- Health info
+- Messages
+- Photos (only videos)
+- Contacts
+- Calendar
+- App activity (analytics/crash logs)
+- Web browsing
+- Device identifiers
+
+SECURITY:
+- Data is encrypted in transit: Yes
+- Users can request data deletion: Yes (uninstall app)
+- Committed to Play Families Policy: No (not for children)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PRIVACY POLICY URL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+https://alutori-lang.github.io/TubeMagic/privacy-policy.html
+
+(Attiva GitHub Pages nel repo: Settings → Pages → Source: main, folder: /docs)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  CONTACT EMAIL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+tuberocket.app@gmail.com
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  TAGS / KEYWORDS (for Play Store search)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+youtube uploader, video upload, ai youtube, auto title, auto tags,
+youtube seo, video publisher, content creator tool, youtube automation,
+batch upload youtube, thumbnail generator, youtube description generator
