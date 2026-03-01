@@ -30,6 +30,27 @@ class AiService {
         return null;
       }
 
+      // ISO 639-1 code -> human-readable language name
+      const langNames = {
+        'ur': 'urdu', 'hi': 'hindi', 'pa': 'punjabi', 'ar': 'arabic',
+        'fa': 'persian', 'bn': 'bengali', 'ta': 'tamil', 'te': 'telugu',
+        'mr': 'marathi', 'gu': 'gujarati', 'kn': 'kannada', 'ml': 'malayalam',
+        'ne': 'nepali', 'si': 'sinhala', 'my': 'burmese', 'km': 'khmer',
+        'th': 'thai', 'lo': 'lao', 'vi': 'vietnamese', 'id': 'indonesian',
+        'ms': 'malay', 'tl': 'tagalog', 'jw': 'javanese', 'su': 'sundanese',
+        'en': 'english', 'es': 'spanish', 'fr': 'french', 'de': 'german',
+        'it': 'italian', 'pt': 'portuguese', 'nl': 'dutch', 'pl': 'polish',
+        'ru': 'russian', 'uk': 'ukrainian', 'cs': 'czech', 'sk': 'slovak',
+        'ro': 'romanian', 'hu': 'hungarian', 'bg': 'bulgarian', 'hr': 'croatian',
+        'sr': 'serbian', 'sl': 'slovenian', 'da': 'danish', 'sv': 'swedish',
+        'no': 'norwegian', 'fi': 'finnish', 'el': 'greek', 'tr': 'turkish',
+        'az': 'azerbaijani', 'ka': 'georgian', 'hy': 'armenian',
+        'he': 'hebrew', 'yi': 'yiddish', 'am': 'amharic', 'sw': 'swahili',
+        'ha': 'hausa', 'yo': 'yoruba', 'ig': 'igbo', 'so': 'somali',
+        'zh': 'chinese', 'ja': 'japanese', 'ko': 'korean',
+        'mn': 'mongolian', 'kk': 'kazakh', 'uz': 'uzbek',
+      };
+
       // ATTEMPT 1: No language forced, let Whisper auto-detect
       debugPrint('ATTEMPT 1: Auto-detect language');
       var result = await _callWhisper(videoPath, null);
@@ -41,20 +62,22 @@ class AiService {
       }
       debugPrint('ATTEMPT 1 FAILED: Bad transcription "${result?.substring(0, result.length > 50 ? 50 : result.length) ?? 'null'}"');
 
-      // ATTEMPT 2-5: Try with forced languages (ur, hi, pa, ar)
-      final languages = ['ur', 'hi', 'pa', 'ar'];
-      for (final lang in languages) {
-        debugPrint('ATTEMPT with language=$lang');
+      // Detect script from whatever Whisper returned, pick related languages to retry
+      final scriptLang = result != null ? _detectLanguageFromScript(result) : 'unknown';
+      final retryLangs = _getRetryLanguages(scriptLang);
+      debugPrint('Script detected: $scriptLang -> retry languages: $retryLangs');
+
+      for (final lang in retryLangs) {
+        debugPrint('RETRY with language=$lang');
         result = await _callWhisper(videoPath, lang);
         if (result != null && _isGoodTranscription(result)) {
           debugPrint('SUCCESS with language=$lang: (${result.length} chars)');
-          final langName = {'ur': 'urdu', 'hi': 'hindi', 'pa': 'punjabi', 'ar': 'arabic'}[lang] ?? lang;
-          return {'text': result, 'language': langName};
+          return {'text': result, 'language': langNames[lang] ?? lang};
         }
         debugPrint('FAILED with language=$lang: "${result?.substring(0, result.length > 50 ? 50 : result.length) ?? 'null'}"');
       }
 
-      // All attempts failed - return whatever we got from attempt 1
+      // All retries failed - return whatever we got from attempt 1
       debugPrint('ALL ATTEMPTS FAILED - returning best effort');
       result = await _callWhisper(videoPath, null);
       if (result != null && result.isNotEmpty) {
@@ -147,16 +170,32 @@ class AiService {
 
   /// Detect language from Unicode script of the transcription text
   static String _detectLanguageFromScript(String text) {
-    int arabic = 0, devanagari = 0, gurmukhi = 0, bengali = 0, latin = 0, cjk = 0, turkish = 0;
+    int arabic = 0, devanagari = 0, gurmukhi = 0, bengali = 0, latin = 0;
+    int cjk = 0, turkish = 0, cyrillic = 0, greek = 0, thai = 0;
+    int georgian = 0, armenian = 0, hebrew = 0, ethiopic = 0;
+    int tamil = 0, telugu = 0, kannada = 0, malayalam = 0, myanmar = 0, khmer = 0;
 
     for (int i = 0; i < text.length && i < 500; i++) {
       final code = text.codeUnitAt(i);
-      if (code >= 0x0600 && code <= 0x06FF) arabic++;        // Arabic/Urdu/Farsi
-      else if (code >= 0x0900 && code <= 0x097F) devanagari++; // Hindi
-      else if (code >= 0x0A00 && code <= 0x0A7F) gurmukhi++;   // Punjabi
-      else if (code >= 0x0980 && code <= 0x09FF) bengali++;     // Bengali
-      else if (code >= 0x4E00 && code <= 0x9FFF) cjk++;        // Chinese/Japanese/Korean
-      else if (code >= 0x0041 && code <= 0x007A) latin++;       // Latin A-z
+      if (code >= 0x0600 && code <= 0x06FF) arabic++;
+      else if (code >= 0x0900 && code <= 0x097F) devanagari++;
+      else if (code >= 0x0A00 && code <= 0x0A7F) gurmukhi++;
+      else if (code >= 0x0980 && code <= 0x09FF) bengali++;
+      else if (code >= 0x0B80 && code <= 0x0BFF) tamil++;
+      else if (code >= 0x0C00 && code <= 0x0C7F) telugu++;
+      else if (code >= 0x0C80 && code <= 0x0CFF) kannada++;
+      else if (code >= 0x0D00 && code <= 0x0D7F) malayalam++;
+      else if (code >= 0x1000 && code <= 0x109F) myanmar++;
+      else if (code >= 0x1780 && code <= 0x17FF) khmer++;
+      else if (code >= 0x0E00 && code <= 0x0E7F) thai++;
+      else if (code >= 0x10A0 && code <= 0x10FF) georgian++;
+      else if (code >= 0x0530 && code <= 0x058F) armenian++;
+      else if (code >= 0x0590 && code <= 0x05FF) hebrew++;
+      else if (code >= 0x1200 && code <= 0x137F) ethiopic++;
+      else if (code >= 0x0400 && code <= 0x04FF) cyrillic++;
+      else if (code >= 0x0370 && code <= 0x03FF) greek++;
+      else if (code >= 0x4E00 && code <= 0x9FFF) cjk++;
+      else if (code >= 0x0041 && code <= 0x007A) latin++;
     }
 
     // Check for Turkish special chars in Latin text
@@ -165,17 +204,52 @@ class AiService {
       if (turkishChars.hasMatch(text)) turkish = latin;
     }
 
-    final max = [arabic, devanagari, gurmukhi, bengali, latin, cjk, turkish]
-        .reduce((a, b) => a > b ? a : b);
+    final counts = {
+      'urdu': arabic, 'hindi': devanagari, 'punjabi': gurmukhi,
+      'bengali': bengali, 'tamil': tamil, 'telugu': telugu,
+      'kannada': kannada, 'malayalam': malayalam, 'burmese': myanmar,
+      'khmer': khmer, 'thai': thai, 'georgian': georgian,
+      'armenian': armenian, 'hebrew': hebrew, 'amharic': ethiopic,
+      'russian': cyrillic, 'greek': greek, 'chinese': cjk,
+      'turkish': turkish, 'english': latin,
+    };
 
-    if (max == 0) return 'unknown';
-    if (max == arabic) return 'urdu';       // Most likely Urdu (could be Arabic/Farsi)
-    if (max == devanagari) return 'hindi';
-    if (max == gurmukhi) return 'punjabi';
-    if (max == bengali) return 'bengali';
-    if (max == cjk) return 'chinese';
-    if (max == turkish) return 'turkish';
-    return 'english';  // Default for Latin script
+    String best = 'unknown';
+    int bestCount = 0;
+    for (final entry in counts.entries) {
+      if (entry.value > bestCount) {
+        bestCount = entry.value;
+        best = entry.key;
+      }
+    }
+    return bestCount == 0 ? 'unknown' : best;
+  }
+
+  /// Get retry languages based on detected script
+  static List<String> _getRetryLanguages(String detectedScript) {
+    switch (detectedScript) {
+      case 'urdu':    return ['ur', 'ar', 'fa'];           // Arabic script
+      case 'hindi':   return ['hi', 'mr', 'ne', 'sa'];     // Devanagari
+      case 'punjabi': return ['pa', 'hi'];                  // Gurmukhi
+      case 'bengali': return ['bn', 'hi'];
+      case 'tamil':   return ['ta', 'hi'];
+      case 'telugu':  return ['te', 'hi'];
+      case 'kannada': return ['kn', 'hi'];
+      case 'malayalam': return ['ml', 'hi'];
+      case 'burmese': return ['my'];
+      case 'khmer':   return ['km'];
+      case 'thai':    return ['th'];
+      case 'georgian': return ['ka'];
+      case 'armenian': return ['hy'];
+      case 'hebrew':  return ['he', 'yi'];
+      case 'amharic': return ['am'];
+      case 'russian': return ['ru', 'uk', 'bg', 'sr'];     // Cyrillic
+      case 'greek':   return ['el'];
+      case 'chinese': return ['zh', 'ja', 'ko'];           // CJK
+      case 'turkish': return ['tr', 'az'];
+      case 'english': return ['en', 'es', 'fr', 'de', 'it', 'pt', 'nl', 'pl', 'ro', 'id', 'ms', 'tl', 'sw', 'vi'];
+      default:        return ['en', 'ur', 'hi', 'ar', 'es', 'fr', 'zh', 'ru', 'tr', 'ko', 'ja'];
+    }
   }
 
   /// Fixes control characters inside JSON string values
