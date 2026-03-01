@@ -3,12 +3,14 @@ import '../utils/app_theme.dart';
 
 class PulsingUploadButton extends StatefulWidget {
   final VoidCallback? onTap;
+  final VoidCallback? onPreview;
   final bool isSelected;
   final String? selectedFileName;
 
   const PulsingUploadButton({
     super.key,
     this.onTap,
+    this.onPreview,
     this.isSelected = false,
     this.selectedFileName,
   });
@@ -139,6 +141,35 @@ class _PulsingUploadButtonState extends State<PulsingUploadButton>
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
+        if (widget.isSelected && widget.onPreview != null) ...[
+          const SizedBox(height: 6),
+          GestureDetector(
+            onTap: widget.onPreview,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+              decoration: BoxDecoration(
+                color: AppTheme.iconBg,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3)),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.play_circle_outline, size: 14, color: AppTheme.primary),
+                  SizedBox(width: 4),
+                  Text(
+                    'Preview',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: AppTheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }

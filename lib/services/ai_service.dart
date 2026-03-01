@@ -9,8 +9,9 @@ class AiService {
   static const String _apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
   static const String _whisperUrl = 'https://api.groq.com/openai/v1/audio/transcriptions';
 
-  /// Transcribes audio from a video file using OpenAI Whisper API
-  static Future<String?> transcribeVideo(String videoPath) async {
+  /// Transcribes audio from a video file using Whisper API
+  /// Returns a Map with 'text' (transcription) and 'language' (auto-detected from script)
+  static Future<Map<String, String>?> transcribeVideo(String videoPath) async {
     try {
       debugPrint('Starting Whisper transcription for: $videoPath');
 
@@ -29,29 +30,190 @@ class AiService {
         return null;
       }
 
+      // ATTEMPT 1: No language forced, let Whisper auto-detect
+      debugPrint('ATTEMPT 1: Auto-detect language');
+      var result = await _callWhisper(videoPath, null);
+      if (result != null && _isGoodTranscription(result)) {
+        debugPrint('ATTEMPT 1 SUCCESS: Good transcription (${result.length} chars)');
+        final detectedLang = _detectLanguageFromScript(result);
+        debugPrint('DETECTED LANGUAGE FROM SCRIPT: $detectedLang');
+        return {'text': result, 'language': detectedLang};
+      }
+      debugPrint('ATTEMPT 1 FAILED: Bad transcription "${result?.substring(0, result.length > 50 ? 50 : result.length) ?? 'null'}"');
+
+      // ATTEMPT 2-5: Try with forced languages (ur, hi, pa, ar)
+      final languages = ['ur', 'hi', 'pa', 'ar'];
+      for (final lang in languages) {
+        debugPrint('ATTEMPT with language=$lang');
+        result = await _callWhisper(videoPath, lang);
+        if (result != null && _isGoodTranscription(result)) {
+          debugPrint('SUCCESS with language=$lang: (${result.length} chars)');
+          final langName = {'ur': 'urdu', 'hi': 'hindi', 'pa': 'punjabi', 'ar': 'arabic'}[lang] ?? lang;
+          return {'text': result, 'language': langName};
+        }
+        debugPrint('FAILED with language=$lang: "${result?.substring(0, result.length > 50 ? 50 : result.length) ?? 'null'}"');
+      }
+
+      // All attempts failed - return whatever we got from attempt 1
+      debugPrint('ALL ATTEMPTS FAILED - returning best effort');
+      result = await _callWhisper(videoPath, null);
+      if (result != null && result.isNotEmpty) {
+        final detectedLang = _detectLanguageFromScript(result);
+        return {'text': result, 'language': detectedLang};
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Whisper transcription error: $e');
+      return null;
+    }
+  }
+
+  /// Call Whisper API with optional forced language
+  static Future<String?> _callWhisper(String videoPath, String? language) async {
+    try {
+      final whisperStart = DateTime.now();
       final request = http.MultipartRequest('POST', Uri.parse(_whisperUrl));
       request.headers['Authorization'] = 'Bearer $_apiKey';
-      request.fields['model'] = 'whisper-large-v3-turbo';
+      request.fields['model'] = 'whisper-large-v3';
       request.fields['response_format'] = 'text';
+      request.fields['temperature'] = '0';
+      if (language != null) {
+        request.fields['language'] = language;
+      }
       request.files.add(await http.MultipartFile.fromPath('file', videoPath));
 
       final streamedResponse = await request.send().timeout(
         const Duration(minutes: 3),
       );
       final response = await http.Response.fromStream(streamedResponse);
+      final whisperTime = DateTime.now().difference(whisperStart).inSeconds;
+      debugPrint('TIMER: Whisper (lang=${language ?? "auto"}) took ${whisperTime}s');
 
       if (response.statusCode == 200) {
-        final transcription = response.body.trim();
-        debugPrint('Transcription received (${transcription.length} chars): ${transcription.substring(0, transcription.length > 200 ? 200 : transcription.length)}...');
-        return transcription.isNotEmpty ? transcription : null;
+        String transcription = response.body.trim();
+        debugPrint('Whisper raw (lang=${language ?? "auto"}, ${transcription.length} chars): ${transcription.substring(0, transcription.length > 200 ? 200 : transcription.length)}');
+        return transcription.isEmpty ? null : transcription;
       } else {
-        debugPrint('Whisper API failed with status ${response.statusCode}: ${response.body}');
+        debugPrint('Whisper API failed (lang=${language ?? "auto"}): ${response.statusCode} ${response.body}');
         return null;
       }
     } catch (e) {
-      debugPrint('Whisper transcription error: $e');
+      debugPrint('Whisper call error (lang=${language ?? "auto"}): $e');
       return null;
     }
+  }
+
+  /// Check if transcription is actually useful (not just "موسیقی" repeated)
+  static bool _isGoodTranscription(String text) {
+    // Must be at least 30 chars to be meaningful
+    if (text.length < 30) {
+      debugPrint('BAD: Too short (${text.length} chars)');
+      return false;
+    }
+
+    // Split into words and check for excessive repetition
+    final words = text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).toList();
+    if (words.length < 5) {
+      debugPrint('BAD: Too few words (${words.length})');
+      return false;
+    }
+
+    // Check if >60% of words are the same (repetition check)
+    final wordCounts = <String, int>{};
+    for (final w in words) {
+      wordCounts[w] = (wordCounts[w] ?? 0) + 1;
+    }
+    final maxCount = wordCounts.values.reduce((a, b) => a > b ? a : b);
+    final repetitionRatio = maxCount / words.length;
+    if (repetitionRatio > 0.6) {
+      debugPrint('BAD: Too repetitive (${(repetitionRatio * 100).toInt()}% same word "${wordCounts.entries.firstWhere((e) => e.value == maxCount).key}")');
+      return false;
+    }
+
+    // Check for known garbage words (موسیقی = music in Urdu/Arabic)
+    final garbagePatterns = ['موسیقی', 'موسيقى', 'music', 'mus', 'سبسکرائب', 'subscribe'];
+    final lowerText = text.toLowerCase();
+    for (final pattern in garbagePatterns) {
+      final count = pattern.allMatches(lowerText).length;
+      if (count > 0 && text.length < count * pattern.length * 3) {
+        debugPrint('BAD: Mostly garbage word "$pattern" ($count times)');
+        return false;
+      }
+    }
+
+    debugPrint('GOOD: ${words.length} words, ${text.length} chars, repetition ${(repetitionRatio * 100).toInt()}%');
+    return true;
+  }
+
+  /// Detect language from Unicode script of the transcription text
+  static String _detectLanguageFromScript(String text) {
+    int arabic = 0, devanagari = 0, gurmukhi = 0, bengali = 0, latin = 0, cjk = 0, turkish = 0;
+
+    for (int i = 0; i < text.length && i < 500; i++) {
+      final code = text.codeUnitAt(i);
+      if (code >= 0x0600 && code <= 0x06FF) arabic++;        // Arabic/Urdu/Farsi
+      else if (code >= 0x0900 && code <= 0x097F) devanagari++; // Hindi
+      else if (code >= 0x0A00 && code <= 0x0A7F) gurmukhi++;   // Punjabi
+      else if (code >= 0x0980 && code <= 0x09FF) bengali++;     // Bengali
+      else if (code >= 0x4E00 && code <= 0x9FFF) cjk++;        // Chinese/Japanese/Korean
+      else if (code >= 0x0041 && code <= 0x007A) latin++;       // Latin A-z
+    }
+
+    // Check for Turkish special chars in Latin text
+    if (latin > 0) {
+      final turkishChars = RegExp(r'[ğüşıöçĞÜŞİÖÇ]');
+      if (turkishChars.hasMatch(text)) turkish = latin;
+    }
+
+    final max = [arabic, devanagari, gurmukhi, bengali, latin, cjk, turkish]
+        .reduce((a, b) => a > b ? a : b);
+
+    if (max == 0) return 'unknown';
+    if (max == arabic) return 'urdu';       // Most likely Urdu (could be Arabic/Farsi)
+    if (max == devanagari) return 'hindi';
+    if (max == gurmukhi) return 'punjabi';
+    if (max == bengali) return 'bengali';
+    if (max == cjk) return 'chinese';
+    if (max == turkish) return 'turkish';
+    return 'english';  // Default for Latin script
+  }
+
+  /// Fixes control characters inside JSON string values
+  static String _fixJsonControlChars(String json) {
+    final buffer = StringBuffer();
+    bool inString = false;
+    bool escaped = false;
+    for (int i = 0; i < json.length; i++) {
+      final char = json[i];
+      if (escaped) {
+        buffer.write(char);
+        escaped = false;
+        continue;
+      }
+      if (char == '\\' && inString) {
+        buffer.write(char);
+        escaped = true;
+        continue;
+      }
+      if (char == '"') {
+        inString = !inString;
+        buffer.write(char);
+        continue;
+      }
+      if (inString && (char.codeUnitAt(0) < 32 || char.codeUnitAt(0) == 127)) {
+        // Replace control chars inside strings with space
+        if (char == '\n' || char == '\r') {
+          buffer.write('\\n');
+        } else if (char == '\t') {
+          buffer.write(' ');
+        } else {
+          buffer.write(' ');
+        }
+      } else {
+        buffer.write(char);
+      }
+    }
+    return buffer.toString();
   }
 
   /// Extracts a clean topic from video file name
@@ -81,89 +243,69 @@ class AiService {
     String? videoFileName,
     String? videoFilePath,
     String? channelId,
+    Map<String, String>? preTranscriptionResult,
     void Function(String status)? onProgress,
   }) async {
     final topic = _extractTopicFromFileName(videoFileName);
 
-    // Step 1: Try to transcribe the video audio
+    // Step 1: Use pre-cached transcription or transcribe now
     String? transcription;
-    if (videoFilePath != null) {
+    String detectedLanguage = 'unknown';
+    if (preTranscriptionResult != null && preTranscriptionResult['text'] != null) {
+      // Already transcribed in background while user was configuring settings
+      transcription = preTranscriptionResult['text'];
+      detectedLanguage = preTranscriptionResult['language'] ?? 'unknown';
+      debugPrint('SPEED: Using pre-cached transcription (${transcription!.length} chars, lang: $detectedLanguage)');
+    } else if (videoFilePath != null) {
       onProgress?.call('Analyzing audio...');
-      transcription = await transcribeVideo(videoFilePath);
+      final result = await transcribeVideo(videoFilePath);
+      if (result != null) {
+        transcription = result['text'];
+        detectedLanguage = result['language'] ?? 'unknown';
+      }
     }
+    debugPrint('DETECTED LANGUAGE FROM AUDIO: $detectedLanguage');
 
     onProgress?.call('Generating metadata...');
 
-    // Step 2: Build the prompt based on whether we have a transcription
+    // Step 2: Build the prompt - ask LLM for PARTS, we build title in Dart
     String prompt;
     if (transcription != null && transcription.isNotEmpty) {
-      // We have real audio content - use it!
-      prompt = '''
-You are a YouTube SEO expert AND a music expert. Generate optimized metadata for a YouTube video based on its ACTUAL AUDIO CONTENT.
+      // Extract first ~11 words from transcription
+      final allWords = transcription.split(RegExp(r'\s+'));
+      final first11Words = allWords.take(11).join(' ');
+      debugPrint('FIRST 11 WORDS FOR TITLE: $first11Words');
 
-VIDEO TRANSCRIPTION (what is said/sung in the video):
+      prompt = '''
+You are a YouTube SEO expert. Analyze this video transcription and return structured data.
+
+AUDIO TRANSCRIPTION (may be in native script - romanize ALL output to Latin A-Z):
 """
 $transcription
 """
 
+DETECTED LANGUAGE: $detectedLanguage
 Category: $categoryName
-Language: $languageName ($languageCode)
-Original file name: ${videoFileName ?? 'unknown'}
 
-STEP 1 - IDENTIFY THE SONG AND ARTIST:
-First, analyze the transcription carefully. Identify the song title from the key lyrics/phrases.
-Then, use your knowledge to figure out WHO originally sang/performed this song.
-- For example: if the lyrics contain "Peed tere jaan di, bhid tere jaan di" → this is the song "Peed Tere Jaan Di" by Gurdas Maan
-- For example: if lyrics contain "Naina da kya kasoor" → this is by Amit Trivedi
-- For example: if lyrics contain "Lamberghini" → this is by The Doorbeen ft Ragini
-- Think hard about which famous singer/artist performs this song based on the lyrics you see
+Return this EXACT JSON structure:
 
-TITLE RULES (VERY IMPORTANT):
-- Title MUST be at least 80 characters long (MINIMUM 80 chars, this is mandatory!)
-- If you are CONFIDENT about the artist name → include it in the title. Example: "Peed Tere Jaan Di by Gurdas Maan Punjabi Best Emotional Song New Hit 2026"
-- If you are NOT SURE about the artist → do NOT put any artist name in the title. Just write the song title with descriptive words. Example: "Peed Tere Jaan Di Punjabi Best Emotional Sad Song New Hit 2026 Must Listen"
-- NEVER write "Unknown Artist", "Unknown Singer", "Unknown", or "Various Artists" in the title
-- Title should include: song name + artist name (ONLY if confident) + language + descriptive words to reach 80+ chars
-- CRITICAL: ALL text in ROMANIZED ENGLISH/LATIN alphabet letters ONLY (A-Z, a-z). No Gurmukhi, Devanagari, Arabic scripts etc.
-
-DESCRIPTION RULES:
-- Do NOT include hashtags in the description - they will be added automatically by the app
-- Description MUST include actual lyrics/words from the transcription
-- Include the transcription or key parts of it
-- Minimum 400 characters
-- Do NOT add any channel link - the app adds it automatically
-
-TAGS RULES (VERY IMPORTANT - FOLLOW EXACTLY):
-- Generate between 40 and 50 tags to fill up close to 460 characters total (NEVER exceed 500 characters total)
-- Each INDIVIDUAL tag must be maximum 15 characters long
-- The FIRST tag MUST be the song title/key phrase
-- ALWAYS include an artist/singer name as a tag, even if you are only guessing. In tags you can put possible artist names. For example if you think the song might be by Gurdas Maan, put "gurdas maan" as a tag. If you think it could be by Diljit Dosanjh, put "diljit dosanjh". Always try to include at least one artist name in tags.
-- Generate 40-50 short tags to reach ~460 total characters
-
-LANGUAGE-SPECIFIC VIRAL TAGS (use the right ones based on detected language):
-- For PUNJABI: "punjabi song", "punjabi music", "new punjabi", "punjabi hits", "desi music", "bhangra", "punjabi pop", "punjabi sad", "jatt", "gabru", "desi", "viral punjabi", "trending", "latest punjabi", "top punjabi"
-- For HINDI: "hindi song", "bollywood", "hindi music", "new hindi", "bollywood hits", "desi music", "hindi pop", "trending hindi", "latest hindi", "viral hindi"
-- For ENGLISH: "english song", "pop music", "new music", "viral song", "trending music", "top hits", "music video", "latest hits"
-- For ARABIC: "arabic song", "arabic music", "khaleeji", "new arabic", "trending arabic"
-- ALWAYS include: "viral", "trending", "new", "latest", "top", "best", "hits 2026", "music", "song"
-
-Generate the following in JSON format:
 {
-  "title": "Song title with artist name ONLY if confident, minimum 80 characters, NEVER unknown",
-  "description": "Description with lyrics/content, minimum 400 chars, NO hashtags, NO channel link",
-  "tags": ["song title", "artist name guess", ... 40-50 tags, each max 15 chars, total ~460 chars],
-  "hashtags": ["hashtag1", "hashtag2", ... 8-10 hashtags without # symbol]
+  "first_words_romanized": "Romanize the FIRST 11 words from the transcription above to Latin A-Z letters. These are: $first11Words -- Romanize these EXACT characters to Latin. Do NOT translate. Do NOT summarize. Do NOT write Music/Mousiqi/Song. Write the actual phonetic sounds in Latin letters.",
+  "singer_or_speaker": "Name of singer/speaker if mentioned in transcription, or empty string if unknown",
+  "content_type": "song OR speech OR interview OR talk OR conference OR vlog OR news",
+  "culture": "The culture based on detected language: $detectedLanguage (e.g. Punjabi, Urdu, Hindi, Arabic, Turkish, English etc.)",
+  "mood": "emotional OR sad OR happy OR motivational OR romantic OR religious OR political OR funny",
+  "description": "Write a rich 500+ char description about the video content. Include actual lyrics/quotes from transcription romanized to Latin. Mention the culture. No hashtags. All in Latin A-Z.",
+  "tags": ["40-50 tags, each max 15 chars, culture-specific + viral tags, total under 500 chars"],
+  "hashtags": ["8-10 hashtags without # symbol, culture + content related"]
 }
 
-Rules:
-- Title: min 80 chars. Include artist ONLY if confident. NEVER write "unknown" or "various". Use romanized Latin letters only.
-- Description: min 400 chars. Include actual lyrics. NO hashtags. NO channel link.
-- Tags: 40-50 tags, each max 15 chars, total ~460 chars. First tag = song title. ALWAYS include artist name in tags even if just guessing.
-- Hashtags: 8-10 relevant hashtags without # symbol
-- ALL text in ROMANIZED English/Latin letters ONLY. No native scripts.
-- Make it SEO optimized for going VIRAL
-
-Return ONLY valid JSON, no other text.
+CRITICAL RULES:
+- "first_words_romanized": Take the characters "$first11Words" and write how they SOUND in Latin letters. Example: if you see "دل دا مملا" write "Dil Da Mamla". Do NOT write "Music" or "Mousiqi" or any English translation.
+- Singer/speaker: ONLY if their name appears in the transcription
+- Culture MUST match the detected language ($detectedLanguage)
+- ALL output in ROMANIZED Latin letters (A-Z) only
+- Return ONLY valid JSON
 ''';
     } else {
       // No transcription available - use file name based approach
@@ -200,6 +342,7 @@ Return ONLY valid JSON, no other text.
     Map<String, dynamic> metadata;
 
     try {
+      final llmStart = DateTime.now();
       final response = await http.post(
         Uri.parse(_apiUrl),
         headers: {
@@ -212,24 +355,37 @@ Return ONLY valid JSON, no other text.
             {
               'role': 'system',
               'content': transcription != null
-                  ? 'You are a YouTube SEO expert AND a music expert with deep knowledge of songs from all languages (Punjabi, Hindi, English, Arabic, etc.). You can identify songs and their artists from lyrics. You have access to the actual transcription of the video. First identify the song and its original artist/singer from the lyrics. Then generate metadata based on the REAL content. CRITICAL RULES: 1) ALWAYS try to identify the artist from the lyrics. 2) Put artist name in title ONLY if you are confident. 3) ALWAYS put artist name in tags even if just guessing. 4) NEVER write "unknown" anywhere. 5) ALL output text MUST use ONLY English/Latin alphabet letters (A-Z, a-z). NEVER use Gurmukhi, Devanagari, Arabic or any non-Latin script. Always respond with valid JSON only.'
-                  : 'You are a YouTube SEO expert. Generate content based on the actual video topic. CRITICAL RULE: ALL output text MUST use ONLY English/Latin alphabet letters (A-Z, a-z). NEVER use non-Latin scripts. Write all non-English words in romanized form. Always respond with valid JSON only.',
+                  ? 'You are the world\'s best YouTube SEO expert. ABSOLUTE RULE: The title MUST start with the FIRST 11 WORDS from the video transcription, romanized to Latin A-Z. Copy the actual spoken/sung words - NEVER replace them with summary words like "Mousiqi", "Music", "Song". The detected audio language tells you the culture. Nationality must match language (Urdu=Pakistani, Punjabi=Pakistani/Indian, Arabic=Arab). ALL output romanized Latin A-Z only. JSON only.'
+                  : 'You are the world\'s best YouTube SEO expert. Your goal: make videos GO VIRAL with perfect titles, descriptions, and tags. CRITICAL: ALL output in ROMANIZED Latin letters (A-Z) only. No native scripts. Respond with valid JSON only.',
             },
             {'role': 'user', 'content': prompt},
           ],
-          'temperature': 0.7,
-          'max_tokens': 3000,
+          'temperature': 0.4,
+          'max_tokens': 2000,
         }),
       );
+
+      final llmTime = DateTime.now().difference(llmStart).inSeconds;
+      debugPrint('TIMER: LLM took ${llmTime}s');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final content = data['choices'][0]['message']['content'] as String;
-        final cleanContent = content
+        String cleanContent = content
             .replaceAll('```json', '')
             .replaceAll('```', '')
             .trim();
-        metadata = jsonDecode(cleanContent) as Map<String, dynamic>;
+        // Fix malformed JSON: remove control characters inside strings (newlines, tabs, etc.)
+        cleanContent = cleanContent.replaceAll(RegExp(r'[\x00-\x1F\x7F](?!["\\/bfnrtu])'), ' ');
+        // Try parsing, if it fails try aggressive cleanup
+        try {
+          metadata = jsonDecode(cleanContent) as Map<String, dynamic>;
+        } catch (_) {
+          debugPrint('JSON parse failed, attempting aggressive cleanup...');
+          // Replace all actual newlines/tabs inside JSON string values with spaces
+          cleanContent = _fixJsonControlChars(cleanContent);
+          metadata = jsonDecode(cleanContent) as Map<String, dynamic>;
+        }
       } else {
         debugPrint('AI API failed with status ${response.statusCode}, using local fallback');
         metadata = _generateLocalMetadata(
@@ -245,24 +401,73 @@ Return ONLY valid JSON, no other text.
       );
     }
 
-    // Safety: ensure title is never empty or invalid
-    String titleText = (metadata['title'] as String?)?.trim() ?? '';
-    // Remove "Unknown Artist", "Unknown Singer" etc. from title
-    titleText = titleText.replaceAll(RegExp(r'\b[Uu]nknown\s*[Aa]rtist\b'), '').trim();
-    titleText = titleText.replaceAll(RegExp(r'\b[Uu]nknown\s*[Ss]inger\b'), '').trim();
-    titleText = titleText.replaceAll(RegExp(r'\b[Uu]nknown\b'), '').trim();
-    // Clean up double spaces and leading/trailing separators
-    titleText = titleText.replaceAll(RegExp(r'\s*[-|]\s*[-|]\s*'), ' - ').trim();
-    titleText = titleText.replaceAll(RegExp(r'\s+'), ' ').trim();
-    titleText = titleText.replaceAll(RegExp(r'^[-|]\s*'), '').trim();
-    titleText = titleText.replaceAll(RegExp(r'\s*[-|]$'), '').trim();
+    // BUILD TITLE IN DART from LLM parts (LLM can't mess this up)
+    if (transcription != null && transcription.isNotEmpty) {
+      final firstWords = (metadata['first_words_romanized'] as String?)?.trim() ?? '';
+      final singerSpeaker = (metadata['singer_or_speaker'] as String?)?.trim() ?? '';
+      final contentType = (metadata['content_type'] as String?)?.trim() ?? 'song';
+      final culture = (metadata['culture'] as String?)?.trim() ?? detectedLanguage;
+      final mood = (metadata['mood'] as String?)?.trim() ?? 'beautiful';
 
-    if (titleText.isEmpty) {
-      metadata['title'] = 'Amazing $categoryName Video - Must Watch Content You Will Love Today';
-      debugPrint('WARNING: Title was empty, using fallback title');
+      debugPrint('BUILD TITLE - firstWords: "$firstWords"');
+      debugPrint('BUILD TITLE - singer: "$singerSpeaker"');
+      debugPrint('BUILD TITLE - culture: "$culture", type: "$contentType"');
+
+      // Map content type to display label
+      String typeLabel;
+      switch (contentType.toLowerCase()) {
+        case 'song': typeLabel = 'Songs'; break;
+        case 'speech': typeLabel = 'Speech'; break;
+        case 'interview': typeLabel = 'Interview'; break;
+        case 'talk': typeLabel = 'Talk'; break;
+        case 'conference': typeLabel = 'Conference'; break;
+        case 'news': typeLabel = 'News'; break;
+        default: typeLabel = 'Songs'; break;
+      }
+
+      // Capitalize mood
+      final moodCap = mood.isNotEmpty ? '${mood[0].toUpperCase()}${mood.substring(1)}' : 'Beautiful';
+
+      // Build title: FirstWords | Singer | Culture Type Mood 2026
+      final parts = <String>[];
+      if (firstWords.isNotEmpty) {
+        parts.add(firstWords);
+      }
+      if (singerSpeaker.isNotEmpty) {
+        parts.add(singerSpeaker);
+      }
+      parts.add('$culture $typeLabel $moodCap 2026');
+
+      String titleText = parts.join(' | ');
+
+      // Clean up
+      titleText = titleText.replaceAll(RegExp(r'\b[Uu]nknown\b'), '').trim();
+      titleText = titleText.replaceAll(RegExp(r'\s*[-|]\s*[-|]\s*'), ' | ').trim();
+      titleText = titleText.replaceAll(RegExp(r'\s+'), ' ').trim();
+      titleText = titleText.replaceAll(RegExp(r'^[-|]\s*'), '').trim();
+      titleText = titleText.replaceAll(RegExp(r'\s*[-|]$'), '').trim();
+
+      metadata['title'] = titleText.isNotEmpty ? titleText : 'Amazing $categoryName Video Must Watch 2026';
+      debugPrint('FINAL BUILT TITLE: "${metadata['title']}"');
     } else {
-      metadata['title'] = titleText;
+      // No transcription - use LLM's title as-is
+      String titleText = (metadata['title'] as String?)?.trim() ?? '';
+      titleText = titleText.replaceAll(RegExp(r'\b[Uu]nknown\b'), '').trim();
+      if (titleText.isEmpty) {
+        metadata['title'] = 'Amazing $categoryName Video - Must Watch Content You Will Love Today';
+      } else {
+        metadata['title'] = titleText;
+      }
     }
+
+    // Safety: clean placeholder text from description
+    final finalTitle = (metadata['title'] as String?) ?? '';
+    String descText = (metadata['description'] as String?)?.trim() ?? '';
+    descText = descText.replaceAll(RegExp(r'\[Video Title\]', caseSensitive: false), finalTitle);
+    descText = descText.replaceAll(RegExp(r'\{Video Title\}', caseSensitive: false), finalTitle);
+    descText = descText.replaceAll(RegExp(r'"Video Title"', caseSensitive: false), finalTitle);
+    descText = descText.replaceAll(RegExp(r'^Video Title\b', caseSensitive: false, multiLine: true), finalTitle);
+    metadata['description'] = descText;
 
     // Enforce tag rules: each tag max 15 chars, total max 500 chars
     if (metadata['tags'] != null && metadata['tags'] is List) {
@@ -315,9 +520,15 @@ Return ONLY valid JSON, no other text.
 
     metadata['description'] = finalDescription.toString();
 
-    debugPrint('Generated title: "${metadata['title']}"');
-    debugPrint('Generated title length: ${(metadata['title'] as String).length}');
-    debugPrint('Had transcription: ${transcription != null}');
+    debugPrint('=== TUBEMAGIC AI RESULT ===');
+    debugPrint('Transcription: ${transcription != null ? "YES (${transcription.length} chars)" : "NO"}');
+    if (transcription != null) {
+      debugPrint('Transcription preview: ${transcription.substring(0, transcription.length > 200 ? 200 : transcription.length)}');
+    }
+    debugPrint('TITLE: "${metadata['title']}"');
+    debugPrint('TITLE length: ${(metadata['title'] as String).length} chars');
+    debugPrint('TAGS count: ${(metadata['tags'] as List?)?.length ?? 0}');
+    debugPrint('=== END TUBEMAGIC AI ===');
 
     return metadata;
   }

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:video_player/video_player.dart';
 import '../services/auth_service.dart';
 import '../services/app_provider.dart';
 import '../services/ai_service.dart';
@@ -27,6 +28,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String? _selectedVideoName;
   bool _isPickingFile = false;
+  // Pre-transcribe audio in background as soon as user picks a video
+  Future<Map<String, String>?>? _preTranscriptionFuture;
+  Map<String, String>? _cachedTranscriptionResult;
 
   @override
   Widget build(BuildContext context) {
@@ -158,6 +162,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         onTap: _isPickingFile ? null : () => _pickVideo(app),
                         isSelected: _selectedVideoName != null,
                         selectedFileName: _selectedVideoName,
+                        onPreview: _selectedVideoName != null && app.project.videoPath != null
+                            ? () => _previewVideo(app.project.videoPath!)
+                            : null,
                       ),
                     ),
 
@@ -434,6 +441,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _previewVideo(String videoPath) {
+    showDialog(
+      context: context,
+      builder: (ctx) => _VideoPreviewDialog(videoPath: videoPath),
+    );
+  }
+
   Future<void> _pickVideo(AppProvider app) async {
     setState(() => _isPickingFile = true);
     try {
@@ -443,7 +457,16 @@ class _HomeScreenState extends State<HomeScreen> {
         app.setVideoFile(video.path);
         setState(() {
           _selectedVideoName = video.name;
+          _cachedTranscriptionResult = null; // Reset for new video
         });
+        // Start Whisper transcription immediately in background (auto-detects language)
+        // This runs while the user configures settings, saving ~15-25 seconds
+        debugPrint('SPEED: Starting background transcription for ${video.name}');
+        _preTranscriptionFuture = AiService.transcribeVideo(video.path)
+          ..then((result) {
+            _cachedTranscriptionResult = result;
+            debugPrint('SPEED: Background transcription done (lang: ${result?['language']}, ${result?['text']?.length ?? 0} chars)');
+          });
       }
     } catch (e) {
       if (mounted) {
@@ -630,7 +653,19 @@ class _HomeScreenState extends State<HomeScreen> {
     app.setStatus('generating');
 
     try {
-      // Generate AI metadata (with audio transcription if available)
+      // Use pre-cached transcription if available (includes auto-detected language)
+      Map<String, String>? preResult;
+      if (_cachedTranscriptionResult != null) {
+        preResult = _cachedTranscriptionResult;
+        debugPrint('SPEED: Transcription was ready instantly (pre-cached, lang: ${preResult?['language']})');
+      } else if (_preTranscriptionFuture != null) {
+        app.setStatus('Finishing audio analysis...');
+        debugPrint('SPEED: Waiting for background transcription to finish...');
+        preResult = await _preTranscriptionFuture;
+        debugPrint('SPEED: Background transcription finished (lang: ${preResult?['language']})');
+      }
+
+      // Generate AI metadata (skip Whisper if we already have transcription)
       final metadata = await AiService.generateVideoMetadata(
         categoryName: app.project.categoryName,
         languageCode: app.project.languageCode,
@@ -638,6 +673,7 @@ class _HomeScreenState extends State<HomeScreen> {
         videoFileName: _selectedVideoName,
         videoFilePath: app.project.videoPath,
         channelId: auth.channelId,
+        preTranscriptionResult: preResult,
         onProgress: (status) {
           app.setStatus(status);
         },
@@ -690,5 +726,100 @@ class _HomeScreenState extends State<HomeScreen> {
         MaterialPageRoute(builder: (_) => const LoginScreen()),
       );
     }
+  }
+}
+
+class _VideoPreviewDialog extends StatefulWidget {
+  final String videoPath;
+  const _VideoPreviewDialog({required this.videoPath});
+
+  @override
+  State<_VideoPreviewDialog> createState() => _VideoPreviewDialogState();
+}
+
+class _VideoPreviewDialogState extends State<_VideoPreviewDialog> {
+  late VideoPlayerController _controller;
+  bool _initialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.file(File(widget.videoPath))
+      ..initialize().then((_) {
+        setState(() => _initialized = true);
+        _controller.play();
+      });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.black,
+      insetPadding: const EdgeInsets.all(16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Close button
+          Align(
+            alignment: Alignment.topRight,
+            child: IconButton(
+              icon: const Icon(Icons.close, color: Colors.white, size: 22),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+          // Video player
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: AspectRatio(
+              aspectRatio: _initialized ? _controller.value.aspectRatio : 16 / 9,
+              child: _initialized
+                  ? VideoPlayer(_controller)
+                  : const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    ),
+            ),
+          ),
+          // Controls
+          if (_initialized)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _controller.value.isPlaying
+                            ? _controller.pause()
+                            : _controller.play();
+                      });
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.replay, color: Colors.white70, size: 22),
+                    onPressed: () {
+                      _controller.seekTo(Duration.zero);
+                      _controller.play();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          const SizedBox(height: 4),
+        ],
+      ),
+    );
   }
 }
