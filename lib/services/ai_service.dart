@@ -47,6 +47,10 @@ class AiService {
         'az': 'azerbaijani', 'ka': 'georgian', 'hy': 'armenian',
         'he': 'hebrew', 'yi': 'yiddish', 'am': 'amharic', 'sw': 'swahili',
         'ha': 'hausa', 'yo': 'yoruba', 'ig': 'igbo', 'so': 'somali',
+        'wo': 'wolof', 'sn': 'shona', 'zu': 'zulu', 'xh': 'xhosa',
+        'rw': 'kinyarwanda', 'lg': 'luganda', 'ak': 'akan',
+        'ee': 'ewe', 'ln': 'lingala', 'tw': 'twi', 'mg': 'malagasy',
+        'ny': 'chichewa', 'st': 'sesotho', 'tn': 'setswana',
         'zh': 'chinese', 'ja': 'japanese', 'ko': 'korean',
         'mn': 'mongolian', 'kk': 'kazakh', 'uz': 'uzbek',
       };
@@ -242,13 +246,13 @@ class AiService {
       case 'georgian': return ['ka'];
       case 'armenian': return ['hy'];
       case 'hebrew':  return ['he', 'yi'];
-      case 'amharic': return ['am'];
+      case 'amharic': return ['am', 'so', 'sw'];
       case 'russian': return ['ru', 'uk', 'bg', 'sr'];     // Cyrillic
       case 'greek':   return ['el'];
       case 'chinese': return ['zh', 'ja', 'ko'];           // CJK
       case 'turkish': return ['tr', 'az'];
-      case 'english': return ['en', 'es', 'fr', 'de', 'it', 'pt', 'nl', 'pl', 'ro', 'id', 'ms', 'tl', 'sw', 'vi'];
-      default:        return ['en', 'ur', 'hi', 'ar', 'es', 'fr', 'zh', 'ru', 'tr', 'ko', 'ja'];
+      case 'english': return ['en', 'es', 'fr', 'pt', 'de', 'it', 'nl', 'pl', 'ro', 'id', 'ms', 'tl', 'sw', 'vi', 'wo', 'yo', 'ha', 'ig', 'sn', 'zu', 'xh', 'lg', 'ak', 'ee', 'ln', 'ny', 'st', 'mg'];
+      default:        return ['en', 'ur', 'hi', 'ar', 'es', 'fr', 'pt', 'sw', 'yo', 'ha', 'wo', 'zh', 'ru', 'tr', 'ko', 'ja'];
     }
   }
 
