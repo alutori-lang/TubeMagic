@@ -6,7 +6,6 @@ import 'package:video_player/video_player.dart';
 import '../services/auth_service.dart';
 import '../services/app_provider.dart';
 import '../services/ai_service.dart';
-import '../services/copyright_service.dart';
 import '../utils/app_theme.dart';
 import '../utils/constants.dart';
 import '../utils/translations.dart';
@@ -464,7 +463,6 @@ class _HomeScreenState extends State<HomeScreen> {
           _cachedTranscriptionResult = null; // Reset for new video
         });
         // Start Whisper transcription immediately in background (auto-detects language)
-        // This runs while the user configures settings, saving ~15-25 seconds
         debugPrint('SPEED: Starting background transcription for ${video.name}');
         _preTranscriptionFuture = AiService.transcribeVideo(video.path!)
           ..then((result) {
@@ -693,70 +691,6 @@ class _HomeScreenState extends State<HomeScreen> {
         app.project.videoFile = File(app.project.videoPath!);
       }
 
-      // Copyright check before publishing
-      if (app.project.videoPath != null) {
-        app.setStatus('Checking copyright...');
-        final copyrightResult = await CopyrightService.checkCopyright(app.project.videoPath!);
-
-        if (copyrightResult.isCopyrighted) {
-          app.setGenerating(false);
-          if (!context.mounted) return;
-
-          final proceed = await showDialog<bool>(
-            context: context,
-            barrierDismissible: false,
-            builder: (ctx) => AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: Row(
-                children: [
-                  Icon(Icons.warning_amber_rounded, color: Colors.orange[700], size: 28),
-                  const SizedBox(width: 10),
-                  const Text('Copyright Detected!'),
-                ],
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'This video contains copyrighted music:',
-                    style: TextStyle(color: Colors.grey[700]),
-                  ),
-                  const SizedBox(height: 12),
-                  if (copyrightResult.title != null)
-                    _copyrightInfoRow(Icons.music_note, 'Song', copyrightResult.title!),
-                  if (copyrightResult.artist != null)
-                    _copyrightInfoRow(Icons.person, 'Artist', copyrightResult.artist!),
-                  if (copyrightResult.album != null)
-                    _copyrightInfoRow(Icons.album, 'Album', copyrightResult.album!),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Publishing may result in a copyright claim on YouTube.',
-                    style: TextStyle(color: Colors.red[600], fontSize: 13),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(ctx, true),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange[700],
-                  ),
-                  child: const Text('Publish Anyway', style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            ),
-          );
-
-          if (proceed != true) return;
-          // User chose to publish anyway, continue
-        }
-      }
-
       app.setGenerating(false);
 
       if (!context.mounted) return;
@@ -785,20 +719,6 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       }
     }
-  }
-
-  Widget _copyrightInfoRow(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Row(
-        children: [
-          Icon(icon, size: 18, color: Colors.grey[600]),
-          const SizedBox(width: 8),
-          Text('$label: ', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-          Expanded(child: Text(value, style: const TextStyle(fontSize: 14), overflow: TextOverflow.ellipsis)),
-        ],
-      ),
-    );
   }
 
   void _handleLogout(BuildContext context, AuthService auth) async {
