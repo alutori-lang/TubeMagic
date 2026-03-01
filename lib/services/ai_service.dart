@@ -90,24 +90,22 @@ class AiService {
       }
       debugPrint('ATTEMPT 1 FAILED: Bad transcription "${result?.substring(0, result.length > 50 ? 50 : result.length) ?? 'null'}"');
 
-      // Detect script from whatever Whisper returned, pick related languages to retry
+      // ATTEMPT 2: Try ONLY the best-guess language (1 retry max for speed)
       final scriptLang = result != null ? _detectLanguageFromScript(result) : 'unknown';
       final retryLangs = _getRetryLanguages(scriptLang);
-      debugPrint('Script detected: $scriptLang -> retry languages: $retryLangs');
-
-      for (final lang in retryLangs) {
-        debugPrint('RETRY with language=$lang');
-        result = await _callWhisper(videoPath, lang);
+      if (retryLangs.isNotEmpty) {
+        final bestLang = retryLangs.first;
+        debugPrint('ATTEMPT 2: Retry with best-guess language=$bestLang');
+        result = await _callWhisper(videoPath, bestLang);
         if (result != null && _isGoodTranscription(result)) {
-          debugPrint('SUCCESS with language=$lang: (${result.length} chars)');
-          return {'text': result, 'language': langNames[lang] ?? lang};
+          debugPrint('ATTEMPT 2 SUCCESS with language=$bestLang (${result.length} chars)');
+          return {'text': result, 'language': langNames[bestLang] ?? bestLang};
         }
-        debugPrint('FAILED with language=$lang: "${result?.substring(0, result.length > 50 ? 50 : result.length) ?? 'null'}"');
+        debugPrint('ATTEMPT 2 FAILED with language=$bestLang');
       }
 
-      // All retries failed - return whatever we got from attempt 1
-      debugPrint('ALL ATTEMPTS FAILED - returning best effort');
-      result = await _callWhisper(videoPath, null);
+      // Both attempts done - return whatever we have (don't waste more time)
+      debugPrint('RETURNING BEST EFFORT after 2 attempts');
       if (result != null && result.isNotEmpty) {
         final detectedLang = _detectLanguageFromScript(result);
         return {'text': result, 'language': detectedLang};
