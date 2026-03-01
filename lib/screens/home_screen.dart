@@ -16,6 +16,7 @@ import 'voice_changer_screen.dart';
 import 'thumbnail_screen.dart';
 import 'review_screen.dart';
 import 'upload_screen.dart';
+import 'batch_upload_screen.dart';
 import 'login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -26,11 +27,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String? _selectedVideoName;
+  // Batch: list of selected videos [{path, name}]
+  final List<Map<String, String>> _selectedVideos = [];
   bool _isPickingFile = false;
-  // Pre-transcribe audio in background as soon as user picks a video
-  Future<Map<String, String>?>? _preTranscriptionFuture;
-  Map<String, String>? _cachedTranscriptionResult;
+  // Pre-transcribe audio in background for each video (keyed by path)
+  final Map<String, Future<Map<String, String>?>> _preTranscriptionFutures = {};
+  final Map<String, Map<String, String>?> _cachedTranscriptionResults = {};
+
+  static const int _maxVideos = 10;
 
   @override
   Widget build(BuildContext context) {
@@ -160,13 +164,92 @@ class _HomeScreenState extends State<HomeScreen> {
                     Center(
                       child: PulsingUploadButton(
                         onTap: _isPickingFile ? null : () => _pickVideo(app),
-                        isSelected: _selectedVideoName != null,
-                        selectedFileName: _selectedVideoName,
-                        onPreview: _selectedVideoName != null && app.project.videoPath != null
-                            ? () => _previewVideo(app.project.videoPath!)
+                        isSelected: _selectedVideos.isNotEmpty,
+                        selectedFileName: _selectedVideos.length == 1
+                            ? _selectedVideos.first['name']
+                            : _selectedVideos.isNotEmpty
+                                ? '${_selectedVideos.length} videos selected'
+                                : null,
+                        onPreview: _selectedVideos.length == 1
+                            ? () => _previewVideo(_selectedVideos.first['path']!)
                             : null,
                       ),
                     ),
+
+                    // Selected videos list (batch)
+                    if (_selectedVideos.length > 1) ...[
+                      const SizedBox(height: 10),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppTheme.surface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppTheme.border),
+                        ),
+                        child: Column(
+                          children: [
+                            for (int i = 0; i < _selectedVideos.length; i++)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 22, height: 22,
+                                      decoration: BoxDecoration(
+                                        color: AppTheme.primary.withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Center(
+                                        child: Text('${i + 1}',
+                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppTheme.primary)),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        _selectedVideos[i]['name'] ?? '',
+                                        style: const TextStyle(fontSize: 12, color: AppTheme.textPrimary),
+                                        maxLines: 1, overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () => _removeVideo(i),
+                                      child: const Icon(Icons.close, size: 16, color: AppTheme.textHint),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    // Add more videos button
+                    if (_selectedVideos.isNotEmpty && _selectedVideos.length < _maxVideos) ...[
+                      const SizedBox(height: 8),
+                      Center(
+                        child: GestureDetector(
+                          onTap: _isPickingFile ? null : () => _pickVideo(app),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: AppTheme.primary.withValues(alpha: 0.3)),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.add, size: 16, color: AppTheme.primary),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Add Videos (${_selectedVideos.length}/$_maxVideos)',
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppTheme.primary),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
 
                     // Progress area (when generating)
                     if (app.isGenerating) ...[
@@ -305,11 +388,15 @@ class _HomeScreenState extends State<HomeScreen> {
               child: GradientButton(
                 text: app.isGenerating
                     ? t('generating')
-                    : t('generate_publish'),
-                subtitle: 'AI generates title, description, tags & thumbnail',
+                    : _selectedVideos.length > 1
+                        ? 'Generate & Upload All (${_selectedVideos.length})'
+                        : t('generate_publish'),
+                subtitle: _selectedVideos.length > 1
+                    ? 'AI processes each video automatically'
+                    : 'AI generates title, description, tags & thumbnail',
                 icon: app.isGenerating ? null : Icons.auto_awesome,
                 isLoading: app.isGenerating,
-                onPressed: _selectedVideoName == null || app.isGenerating
+                onPressed: _selectedVideos.isEmpty || app.isGenerating
                     ? null
                     : () => _startProcess(context, app, auth),
               ),
@@ -448,27 +535,54 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _removeVideo(int index) {
+    final removed = _selectedVideos.removeAt(index);
+    _preTranscriptionFutures.remove(removed['path']);
+    _cachedTranscriptionResults.remove(removed['path']);
+    // Update provider with first video (or clear)
+    if (_selectedVideos.isNotEmpty) {
+      final app = context.read<AppProvider>();
+      app.setVideoFile(_selectedVideos.first['path']!);
+    }
+    setState(() {});
+  }
+
   Future<void> _pickVideo(AppProvider app) async {
     setState(() => _isPickingFile = true);
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.video,
-        allowMultiple: false,
+        allowMultiple: true,
       );
-      final video = result?.files.first;
-      if (video != null && video.path != null) {
-        app.setVideoFile(video.path!);
-        setState(() {
-          _selectedVideoName = video.name;
-          _cachedTranscriptionResult = null; // Reset for new video
-        });
-        // Start Whisper transcription immediately in background (auto-detects language)
-        debugPrint('SPEED: Starting background transcription for ${video.name}');
-        _preTranscriptionFuture = AiService.transcribeVideo(video.path!)
-          ..then((result) {
-            _cachedTranscriptionResult = result;
-            debugPrint('SPEED: Background transcription done (lang: ${result?['language']}, ${result?['text']?.length ?? 0} chars)');
-          });
+      if (result != null && result.files.isNotEmpty) {
+        for (final video in result.files) {
+          if (video.path == null) continue;
+          // Skip duplicates
+          if (_selectedVideos.any((v) => v['path'] == video.path)) continue;
+          // Max 10 videos
+          if (_selectedVideos.length >= _maxVideos) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Maximum $_maxVideos videos allowed')),
+              );
+            }
+            break;
+          }
+          _selectedVideos.add({'path': video.path!, 'name': video.name});
+          // Start Whisper pre-transcription in background for each video
+          debugPrint('SPEED: Starting background transcription for ${video.name}');
+          final path = video.path!;
+          _preTranscriptionFutures[path] = AiService.transcribeVideo(path)
+            ..then((result) {
+              _cachedTranscriptionResults[path] = result;
+              debugPrint('SPEED: Background transcription done for ${video.name} (lang: ${result?['language']}, ${result?['text']?.length ?? 0} chars)');
+            });
+        }
+        // Set first video in provider
+        if (_selectedVideos.isNotEmpty) {
+          app.setVideoFile(_selectedVideos.first['path']!);
+        }
+        setState(() {});
       }
     } catch (e) {
       if (mounted) {
@@ -651,29 +765,46 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _startProcess(
       BuildContext context, AppProvider app, AuthService auth) async {
+    // BATCH MODE: navigate to batch upload screen
+    if (_selectedVideos.length > 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => BatchUploadScreen(
+            videos: List.from(_selectedVideos),
+            preTranscriptionFutures: Map.from(_preTranscriptionFutures),
+            cachedTranscriptionResults: Map.from(_cachedTranscriptionResults),
+          ),
+        ),
+      );
+      return;
+    }
+
+    // SINGLE VIDEO MODE (with review support)
     app.setGenerating(true);
     app.setStatus('generating');
 
     try {
-      // Use pre-cached transcription if available (includes auto-detected language)
+      final videoPath = _selectedVideos.first['path']!;
+      final videoName = _selectedVideos.first['name'];
+
+      // Use pre-cached transcription if available
       Map<String, String>? preResult;
-      if (_cachedTranscriptionResult != null) {
-        preResult = _cachedTranscriptionResult;
-        debugPrint('SPEED: Transcription was ready instantly (pre-cached, lang: ${preResult?['language']})');
-      } else if (_preTranscriptionFuture != null) {
+      if (_cachedTranscriptionResults.containsKey(videoPath)) {
+        preResult = _cachedTranscriptionResults[videoPath];
+        debugPrint('SPEED: Transcription was ready instantly (pre-cached)');
+      } else if (_preTranscriptionFutures.containsKey(videoPath)) {
         app.setStatus('Finishing audio analysis...');
-        debugPrint('SPEED: Waiting for background transcription to finish...');
-        preResult = await _preTranscriptionFuture;
-        debugPrint('SPEED: Background transcription finished (lang: ${preResult?['language']})');
+        preResult = await _preTranscriptionFutures[videoPath];
       }
 
-      // Generate AI metadata (skip Whisper if we already have transcription)
+      // Generate AI metadata
       final metadata = await AiService.generateVideoMetadata(
         categoryName: app.project.categoryName,
         languageCode: app.project.languageCode,
         languageName: app.project.languageName,
-        videoFileName: _selectedVideoName,
-        videoFilePath: app.project.videoPath,
+        videoFileName: videoName,
+        videoFilePath: videoPath,
         channelId: auth.channelId,
         preTranscriptionResult: preResult,
         onProgress: (status) {
@@ -687,9 +818,8 @@ class _HomeScreenState extends State<HomeScreen> {
       app.setHashtags(List<String>.from(metadata['hashtags'] as List));
 
       // Set video file
-      if (app.project.videoPath != null) {
-        app.project.videoFile = File(app.project.videoPath!);
-      }
+      app.setVideoFile(videoPath);
+      app.project.videoFile = File(videoPath);
 
       app.setGenerating(false);
 
