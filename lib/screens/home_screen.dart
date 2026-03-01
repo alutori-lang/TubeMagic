@@ -389,12 +389,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 text: app.isGenerating
                     ? t('generating')
                     : _selectedVideos.length > 1
-                        ? 'Generate & Upload All (${_selectedVideos.length})'
+                        ? 'Launch All (${_selectedVideos.length})'
                         : t('generate_publish'),
                 subtitle: _selectedVideos.length > 1
                     ? 'AI processes each video automatically'
                     : 'AI generates title, description, tags & thumbnail',
-                icon: app.isGenerating ? null : Icons.auto_awesome,
+                icon: app.isGenerating ? null : Icons.rocket_launch,
                 isLoading: app.isGenerating,
                 onPressed: _selectedVideos.isEmpty || app.isGenerating
                     ? null

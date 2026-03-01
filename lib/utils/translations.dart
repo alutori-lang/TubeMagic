@@ -15,7 +15,7 @@ class Translations {
   static const Map<String, Map<String, String>> _translations = {
     // ============ ENGLISH ============
     'en': {
-      'app_name': 'TubeMagic',
+      'app_name': 'TubeRocket',
       'app_tagline': 'Smart YouTube video publisher',
       'sign_in_google': 'Sign in with Google',
       'or': 'or',
@@ -34,6 +34,7 @@ class Translations {
       'made_for_kids': 'Made for Kids',
       'privacy_status': 'Privacy',
       'generate_publish': 'Generate & Publish',
+      'launch': 'LAUNCH',
       'generating': 'Generating...',
       'select_language': 'Select Language',
       'select_category': 'Select Category',
@@ -94,7 +95,7 @@ class Translations {
 
     // ============ ITALIAN ============
     'it': {
-      'app_name': 'TubeMagic',
+      'app_name': 'TubeRocket',
       'app_tagline': 'Pubblica video su YouTube in modo intelligente',
       'sign_in_google': 'Accedi con Google',
       'or': 'oppure',
@@ -113,6 +114,7 @@ class Translations {
       'made_for_kids': 'Per Bambini',
       'privacy_status': 'Privacy',
       'generate_publish': 'Genera e Pubblica',
+      'launch': 'LANCIA',
       'generating': 'Generando...',
       'select_language': 'Seleziona Lingua',
       'select_category': 'Seleziona Categoria',
@@ -173,7 +175,7 @@ class Translations {
 
     // ============ SPANISH ============
     'es': {
-      'app_name': 'TubeMagic',
+      'app_name': 'TubeRocket',
       'app_tagline': 'Publicador inteligente de videos en YouTube',
       'sign_in_google': 'Iniciar sesion con Google',
       'or': 'o',
@@ -192,6 +194,7 @@ class Translations {
       'made_for_kids': 'Para Ninos',
       'privacy_status': 'Privacidad',
       'generate_publish': 'Generar y Publicar',
+      'launch': 'LANZAR',
       'generating': 'Generando...',
       'select_language': 'Seleccionar Idioma',
       'select_category': 'Seleccionar Categoria',
@@ -252,7 +255,7 @@ class Translations {
 
     // ============ FRENCH ============
     'fr': {
-      'app_name': 'TubeMagic',
+      'app_name': 'TubeRocket',
       'app_tagline': 'Publieur intelligent de videos YouTube',
       'sign_in_google': 'Se connecter avec Google',
       'or': 'ou',
@@ -271,6 +274,7 @@ class Translations {
       'made_for_kids': 'Pour les Enfants',
       'privacy_status': 'Confidentialite',
       'generate_publish': 'Generer et Publier',
+      'launch': 'LANCER',
       'generating': 'Generation...',
       'select_language': 'Selectionner la Langue',
       'select_category': 'Selectionner la Categorie',
@@ -331,7 +335,7 @@ class Translations {
 
     // ============ GERMAN ============
     'de': {
-      'app_name': 'TubeMagic',
+      'app_name': 'TubeRocket',
       'app_tagline': 'Intelligenter YouTube Video Publisher',
       'sign_in_google': 'Mit Google anmelden',
       'or': 'oder',
@@ -349,7 +353,8 @@ class Translations {
       'review_before_upload': 'Vor dem Hochladen uberprufen',
       'made_for_kids': 'Fur Kinder',
       'privacy_status': 'Datenschutz',
-      'generate_publish': 'Generieren & Veroffentlichen',
+      'generate_publish': 'Generieren & Veröffentlichen',
+      'launch': 'STARTEN',
       'generating': 'Generiere...',
       'select_language': 'Sprache Wahlen',
       'select_category': 'Kategorie Wahlen',
@@ -410,7 +415,7 @@ class Translations {
 
     // ============ PORTUGUESE ============
     'pt': {
-      'app_name': 'TubeMagic',
+      'app_name': 'TubeRocket',
       'app_tagline': 'Publicador inteligente de videos no YouTube',
       'sign_in_google': 'Entrar com Google',
       'or': 'ou',
@@ -429,6 +434,7 @@ class Translations {
       'made_for_kids': 'Para Criancas',
       'privacy_status': 'Privacidade',
       'generate_publish': 'Gerar e Publicar',
+      'launch': 'LANÇAR',
       'generating': 'Gerando...',
       'select_language': 'Selecionar Idioma',
       'select_category': 'Selecionar Categoria',
@@ -489,7 +495,7 @@ class Translations {
 
     // ============ HINDI ============
     'hi': {
-      'app_name': 'TubeMagic',
+      'app_name': 'TubeRocket',
       'app_tagline': 'YouTube video smart publisher',
       'sign_in_google': 'Google se sign in kare',
       'or': 'ya',
@@ -508,6 +514,7 @@ class Translations {
       'made_for_kids': 'Baccho ke liye',
       'privacy_status': 'Privacy',
       'generate_publish': 'Generate aur Publish kare',
+      'launch': 'LAUNCH',
       'generating': 'Generate ho raha hai...',
       'select_language': 'Bhasha chune',
       'select_category': 'Category chune',
@@ -568,7 +575,7 @@ class Translations {
 
     // ============ ARABIC ============
     'ar': {
-      'app_name': 'TubeMagic',
+      'app_name': 'TubeRocket',
       'app_tagline': 'ناشر فيديوهات يوتيوب الذكي',
       'sign_in_google': 'تسجيل الدخول بجوجل',
       'or': 'او',
@@ -587,6 +594,7 @@ class Translations {
       'made_for_kids': 'للاطفال',
       'privacy_status': 'الخصوصية',
       'generate_publish': 'انشاء ونشر',
+      'launch': 'إطلاق',
       'generating': 'جاري الانشاء...',
       'select_language': 'اختر اللغة',
       'select_category': 'اختر الفئة',
@@ -647,7 +655,7 @@ class Translations {
 
     // ============ JAPANESE ============
     'ja': {
-      'app_name': 'TubeMagic',
+      'app_name': 'TubeRocket',
       'app_tagline': 'スマートYouTube動画パブリッシャー',
       'sign_in_google': 'Googleでサインイン',
       'or': 'または',
@@ -665,6 +673,7 @@ class Translations {
       'made_for_kids': '子供向け',
       'privacy_status': 'プライバシー',
       'generate_publish': '生成して公開',
+      'launch': 'ローンチ',
       'generating': '生成中...',
       'select_language': '言語を選択',
       'select_category': 'カテゴリを選択',
@@ -726,7 +735,7 @@ class Translations {
 
     // ============ KOREAN ============
     'ko': {
-      'app_name': 'TubeMagic',
+      'app_name': 'TubeRocket',
       'app_tagline': '스마트 YouTube 비디오 퍼블리셔',
       'sign_in_google': 'Google로 로그인',
       'or': '또는',
@@ -746,6 +755,7 @@ class Translations {
       'made_for_kids': '어린이용',
       'privacy_status': '공개 설정',
       'generate_publish': '생성 및 게시',
+      'launch': '출시',
       'generating': '생성 중...',
       'select_language': '언어 선택',
       'select_category': '카테고리 선택',
@@ -777,7 +787,7 @@ class Translations {
 
     // ============ CHINESE ============
     'zh': {
-      'app_name': 'TubeMagic',
+      'app_name': 'TubeRocket',
       'app_tagline': '智能YouTube视频发布器',
       'sign_in_google': '使用Google登录',
       'or': '或',
@@ -797,6 +807,7 @@ class Translations {
       'made_for_kids': '儿童内容',
       'privacy_status': '隐私设置',
       'generate_publish': '生成并发布',
+      'launch': '发射',
       'generating': '生成中...',
       'select_language': '选择语言',
       'select_category': '选择分类',
@@ -828,7 +839,7 @@ class Translations {
 
     // ============ RUSSIAN ============
     'ru': {
-      'app_name': 'TubeMagic',
+      'app_name': 'TubeRocket',
       'app_tagline': 'Умный издатель видео YouTube',
       'sign_in_google': 'Войти через Google',
       'or': 'или',
@@ -848,6 +859,7 @@ class Translations {
       'made_for_kids': 'Для детей',
       'privacy_status': 'Конфиденциальность',
       'generate_publish': 'Создать и опубликовать',
+      'launch': 'ЗАПУСК',
       'generating': 'Создание...',
       'select_language': 'Выберите язык',
       'select_category': 'Выберите категорию',
@@ -879,7 +891,7 @@ class Translations {
 
     // ============ TURKISH ============
     'tr': {
-      'app_name': 'TubeMagic',
+      'app_name': 'TubeRocket',
       'app_tagline': 'Akilli YouTube video yayinlayici',
       'sign_in_google': 'Google ile giris yap',
       'or': 'veya',
@@ -899,6 +911,7 @@ class Translations {
       'made_for_kids': 'Cocuklar Icin',
       'privacy_status': 'Gizlilik',
       'generate_publish': 'Olustur ve Yayinla',
+      'launch': 'FIRLAT',
       'generating': 'Olusturuluyor...',
       'select_language': 'Dil Secin',
       'select_category': 'Kategori Secin',
@@ -930,7 +943,7 @@ class Translations {
 
     // ============ DUTCH ============
     'nl': {
-      'app_name': 'TubeMagic',
+      'app_name': 'TubeRocket',
       'app_tagline': 'Slimme YouTube video uitgever',
       'sign_in_google': 'Inloggen met Google',
       'or': 'of',
@@ -945,6 +958,7 @@ class Translations {
       'thumbnail': 'Thumbnail',
       'privacy_status': 'Privacy',
       'generate_publish': 'Genereer en Publiceer',
+      'launch': 'LANCEER',
       'generating': 'Genereren...',
       'public': 'Openbaar',
       'unlisted': 'Niet vermeld',
@@ -966,7 +980,7 @@ class Translations {
 
     // ============ POLISH ============
     'pl': {
-      'app_name': 'TubeMagic',
+      'app_name': 'TubeRocket',
       'app_tagline': 'Inteligentny wydawca filmow YouTube',
       'sign_in_google': 'Zaloguj sie przez Google',
       'or': 'lub',
@@ -981,6 +995,7 @@ class Translations {
       'thumbnail': 'Miniatura',
       'privacy_status': 'Prywatnosc',
       'generate_publish': 'Generuj i Publikuj',
+      'launch': 'URUCHOM',
       'generating': 'Generowanie...',
       'public': 'Publiczny',
       'unlisted': 'Niewidoczny',
@@ -1002,7 +1017,7 @@ class Translations {
 
     // ============ URDU ============
     'ur': {
-      'app_name': 'TubeMagic',
+      'app_name': 'TubeRocket',
       'app_tagline': 'سمارٹ یوٹیوب ویڈیو پبلشر',
       'sign_in_google': 'گوگل سے سائن ان کریں',
       'or': 'یا',
@@ -1017,6 +1032,7 @@ class Translations {
       'thumbnail': 'تھمبنیل',
       'privacy_status': 'رازداری',
       'generate_publish': 'بنائیں اور شائع کریں',
+      'launch': 'لانچ',
       'generating': 'بنایا جا رہا ہے...',
       'public': 'عوامی',
       'unlisted': 'غیر فہرست',
@@ -1038,7 +1054,7 @@ class Translations {
 
     // ============ BENGALI ============
     'bn': {
-      'app_name': 'TubeMagic',
+      'app_name': 'TubeRocket',
       'app_tagline': 'স্মার্ট YouTube ভিডিও প্রকাশক',
       'sign_in_google': 'Google দিয়ে সাইন ইন করুন',
       'upload_video': 'আপনার ভিডিও আপলোড করুন',
@@ -1046,6 +1062,7 @@ class Translations {
       'language': 'ভিডিও ভাষা',
       'category': 'ক্যাটাগরি',
       'generate_publish': 'তৈরি করুন এবং প্রকাশ করুন',
+      'launch': 'লঞ্চ',
       'public': 'পাবলিক',
       'unlisted': 'আনলিস্টেড',
       'private': 'প্রাইভেট',
@@ -1065,7 +1082,7 @@ class Translations {
 
     // ============ PUNJABI ============
     'pa': {
-      'app_name': 'TubeMagic',
+      'app_name': 'TubeRocket',
       'app_tagline': 'ਸਮਾਰਟ YouTube ਵੀਡੀਓ ਪ੍ਰਕਾਸ਼ਕ',
       'sign_in_google': 'Google ਨਾਲ ਸਾਈਨ ਇਨ ਕਰੋ',
       'upload_video': 'ਆਪਣਾ ਵੀਡੀਓ ਅੱਪਲੋਡ ਕਰੋ',
@@ -1073,6 +1090,7 @@ class Translations {
       'language': 'ਵੀਡੀਓ ਭਾਸ਼ਾ',
       'category': 'ਸ਼੍ਰੇਣੀ',
       'generate_publish': 'ਬਣਾਓ ਅਤੇ ਪ੍ਰਕਾਸ਼ਿਤ ਕਰੋ',
+      'launch': 'ਲਾਂਚ',
       'public': 'ਜਨਤਕ',
       'unlisted': 'ਅਣਸੂਚੀਬੱਧ',
       'private': 'ਨਿੱਜੀ',

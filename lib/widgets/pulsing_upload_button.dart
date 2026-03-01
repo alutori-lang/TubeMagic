@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/app_theme.dart';
+import '../utils/translations.dart';
 
 class PulsingUploadButton extends StatefulWidget {
   final VoidCallback? onTap;
@@ -102,45 +103,75 @@ class _PulsingUploadButtonState extends State<PulsingUploadButton>
                       ),
                     ],
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        widget.isSelected
-                            ? Icons.check_rounded
-                            : Icons.arrow_upward_rounded,
-                        size: 30,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        widget.isSelected ? 'SELECTED' : 'UPLOAD',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1,
+                  child: widget.isSelected
+                      ? const Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.check_rounded, size: 30, color: Colors.white),
+                            SizedBox(height: 4),
+                            Text('SELECTED',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 1,
+                                )),
+                          ],
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.rocket_launch, size: 28, color: Colors.white),
+                            const SizedBox(height: 2),
+                            Text(
+                              Translations.t('launch'),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 2,
+                              ),
+                            ),
+                            const Text(
+                              'ROCKET',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 3,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
                 ),
               ],
             ),
           ),
         ),
-        const SizedBox(height: 8),
-        Text(
-          widget.selectedFileName ?? 'Tap to select videos from your device',
-          style: TextStyle(
-            fontSize: 11,
-            color: widget.isSelected ? AppTheme.textPrimary : AppTheme.textHint,
-            fontWeight: widget.isSelected ? FontWeight.w500 : FontWeight.w400,
+        const SizedBox(height: 6),
+        if (!widget.isSelected)
+          Text(
+            Translations.t('upload_video'),
+            style: const TextStyle(
+              fontSize: 10,
+              color: AppTheme.textHint,
+              fontWeight: FontWeight.w500,
+              letterSpacing: 0.5,
+            ),
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
+        if (widget.isSelected && widget.selectedFileName != null)
+          Text(
+            widget.selectedFileName!,
+            style: const TextStyle(
+              fontSize: 11,
+              color: AppTheme.textPrimary,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         if (widget.isSelected && widget.onPreview != null) ...[
           const SizedBox(height: 6),
           GestureDetector(

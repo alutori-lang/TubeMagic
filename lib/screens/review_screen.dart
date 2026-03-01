@@ -72,7 +72,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.auto_awesome,
+                        const Icon(Icons.rocket_launch,
                             size: 14, color: AppTheme.primary),
                         const SizedBox(width: 6),
                         Text(

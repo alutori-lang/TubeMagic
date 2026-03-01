@@ -8,11 +8,11 @@ import 'utils/app_theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const TubeMagicApp());
+  runApp(const TubeRocketApp());
 }
 
-class TubeMagicApp extends StatelessWidget {
-  const TubeMagicApp({super.key});
+class TubeRocketApp extends StatelessWidget {
+  const TubeRocketApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class TubeMagicApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AppProvider()),
       ],
       child: MaterialApp(
-        title: 'TubeMagic',
+        title: 'TubeRocket',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.theme,
         home: Consumer<AuthService>(

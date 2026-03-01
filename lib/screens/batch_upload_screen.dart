@@ -346,8 +346,8 @@ class _BatchUploadScreenState extends State<BatchUploadScreen> {
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: readyCount > 0 ? _uploadAll : null,
-            icon: const Icon(Icons.cloud_upload, size: 20),
-            label: Text('Upload $readyCount Videos',
+            icon: const Icon(Icons.rocket_launch, size: 20),
+            label: Text('Launch $readyCount Videos',
                 style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -584,7 +584,7 @@ class _BatchUploadScreenState extends State<BatchUploadScreen> {
 
     switch (vs.status) {
       case _VideoStatus.generating:
-        icon = Icons.auto_awesome;
+        icon = Icons.rocket_launch;
         iconColor = AppTheme.primary;
         statusText = 'Generating...';
         showSpinner = true;

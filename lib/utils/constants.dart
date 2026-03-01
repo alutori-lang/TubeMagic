@@ -1,5 +1,5 @@
 class AppConstants {
-  static const String appName = 'TubeMagic';
+  static const String appName = 'TubeRocket';
   static const String appTagline = 'Smart YouTube video publisher';
 
   // YouTube API Scopes
