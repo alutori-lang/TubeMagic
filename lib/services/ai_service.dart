@@ -281,26 +281,29 @@ class AiService {
       case 'chinese':   return ['zh', 'ja', 'ko'];
       // Turkish + Turkic languages
       case 'turkish':   return ['tr', 'az', 'tk', 'uz'];
-      // Latin script: European, African, Southeast Asian, Balkan, Caribbean
+      // Latin script: ALL European + African + Southeast Asian + Caribbean
       case 'english':   return [
-        // Major European
-        'en', 'es', 'fr', 'pt', 'de', 'it', 'nl',
-        // Balkan & Eastern Europe
-        'sq', 'bs', 'hr', 'sl', 'ro', 'hu', 'pl', 'cs', 'sk',
+        // Western Europe
+        'en', 'it', 'es', 'fr', 'pt', 'de', 'nl',
+        'ca', 'gl', 'eu', 'oc', 'lb', 'br', 'cy',
         // Nordic & Baltic
-        'da', 'sv', 'no', 'fi', 'et', 'lt', 'lv', 'is',
-        // African (Latin script)
+        'da', 'sv', 'no', 'nn', 'fi', 'is', 'fo',
+        'et', 'lt', 'lv',
+        // Eastern Europe & Balkans
+        'pl', 'cs', 'sk', 'hu', 'ro', 'sq', 'bs', 'hr', 'sl',
+        // Africa (Latin script)
         'sw', 'wo', 'yo', 'ha', 'ig', 'sn', 'zu', 'xh', 'af',
-        'lg', 'ak', 'ee', 'ln', 'ny', 'st', 'mg', 'rw',
-        // Southeast Asian (Latin script)
-        'id', 'ms', 'tl', 'vi',
-        // Others
-        'ht', 'mt', 'ca', 'gl', 'eu', 'cy',
+        'lg', 'ak', 'ee', 'ln', 'ny', 'st', 'tn', 'mg', 'rw',
+        // Southeast Asia & Pacific (Latin script)
+        'id', 'ms', 'tl', 'vi', 'jw', 'su', 'mi', 'haw',
+        // Caribbean & others
+        'ht', 'mt', 'so',
       ];
-      // Unknown script: try most common world languages
+      // Unknown script: try most common world languages from every continent
       default: return [
-        'en', 'ur', 'hi', 'ar', 'es', 'fr', 'pt', 'sw', 'yo', 'ha', 'wo',
-        'zh', 'ru', 'tr', 'ko', 'ja', 'id', 'bn', 'pa', 'sq', 'ro', 'de',
+        'en', 'it', 'es', 'fr', 'pt', 'de', 'ur', 'hi', 'ar', 'pa',
+        'bn', 'sw', 'yo', 'ha', 'wo', 'sq', 'ro', 'tr',
+        'zh', 'ru', 'ko', 'ja', 'id', 'th', 'vi', 'fa',
       ];
     }
   }
