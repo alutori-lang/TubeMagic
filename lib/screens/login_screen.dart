@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../services/auth_service.dart';
 import '../utils/app_theme.dart';
 import '../utils/translations.dart';
@@ -108,6 +110,22 @@ class LoginScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 14),
 
+                  // Sign in with Apple Button (iOS only)
+                  if (Platform.isIOS)
+                    SizedBox(
+                      width: double.infinity,
+                      child: SignInWithAppleButton(
+                        onPressed: auth.isLoading
+                            ? () {}
+                            : () => _handleAppleSignIn(context, auth),
+                        style: SignInWithAppleButtonStyle.black,
+                        borderRadius: BorderRadius.circular(14),
+                        height: 50,
+                      ),
+                    ),
+                  if (Platform.isIOS)
+                    const SizedBox(height: 14),
+
                   // Divider
                   Row(
                     children: [
@@ -155,6 +173,24 @@ class LoginScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _handleAppleSignIn(BuildContext context, AuthService auth) async {
+    final success = await auth.signInWithApple();
+    if (success && context.mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
+    } else if (context.mounted) {
+      final errorMsg = auth.lastError ?? Translations.t('sign_in_failed');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${Translations.t('sign_in_failed')}: $errorMsg'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
+        ),
+      );
+    }
   }
 
   Future<void> _handleSignIn(BuildContext context, AuthService auth) async {

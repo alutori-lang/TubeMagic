@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:http/http.dart' as http;
 import '../utils/constants.dart';
 import 'youtube_service.dart';
@@ -21,11 +22,12 @@ class AuthService extends ChangeNotifier {
   String? _channelSubscribers;
   String? _channelViews;
   String? _channelVideos;
+  bool _isAppleUser = false;
 
   GoogleSignInAccount? get currentUser => _currentUser;
   http.Client? get authClient => _authClient;
   bool get isLoading => _isLoading;
-  bool get isLoggedIn => _currentUser != null;
+  bool get isLoggedIn => _currentUser != null || _isAppleUser;
   String? get channelName => _channelName;
   String? get channelAvatar => _channelAvatar;
   String? get channelId => _channelId;
@@ -150,6 +152,40 @@ class AuthService extends ChangeNotifier {
     return null;
   }
 
+  Future<bool> signInWithApple() async {
+    _isLoading = true;
+    _lastError = null;
+    notifyListeners();
+    try {
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      _isAppleUser = true;
+      _channelName = [
+        credential.givenName,
+        credential.familyName,
+      ].where((n) => n != null).join(' ');
+      if (_channelName == null || _channelName!.isEmpty) {
+        _channelName = 'Apple User';
+      }
+      _channelAvatar = null;
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint('Apple Sign-in error: $e');
+      _lastError = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<void> signOut() async {
     await _googleSignIn.signOut();
     _currentUser = null;
@@ -160,6 +196,7 @@ class AuthService extends ChangeNotifier {
     _channelSubscribers = null;
     _channelViews = null;
     _channelVideos = null;
+    _isAppleUser = false;
     notifyListeners();
   }
 }
