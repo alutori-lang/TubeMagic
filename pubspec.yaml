@@ -1,7 +1,7 @@
 name: yt_autopub
 description: "TubeRocket - AI-powered YouTube video publisher. Auto generates titles, tags, descriptions, thumbnails and uploads to YouTube."
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ^3.10.8

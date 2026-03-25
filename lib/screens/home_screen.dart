@@ -68,34 +68,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const Spacer(),
-                  // Notification bell with red dot
-                  Stack(
-                    children: [
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: AppTheme.iconBg,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.notifications_outlined,
-                            size: 18, color: AppTheme.textSecondary),
-                      ),
-                      Positioned(
-                        right: 6,
-                        top: 6,
-                        child: Container(
-                          width: 6,
-                          height: 6,
-                          decoration: const BoxDecoration(
-                            color: AppTheme.primary,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 10),
                   // Avatar with gradient
                   PopupMenuButton<String>(
                     onSelected: (value) {
@@ -360,20 +332,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
 
+                    // Kids option
+                    _buildOptionTile(
+                      icon: Icons.child_care,
+                      label: t('made_for_kids'),
+                      value: project.madeForKids ? t('yes') : t('no'),
+                      onTap: () => _showKidsPicker(context, app),
+                    ),
+
                     // Review toggle
                     _buildToggleTile(
                       icon: Icons.visibility_outlined,
                       label: t('review_before_upload'),
                       value: project.reviewBeforePublish,
                       onChanged: (v) => app.setReviewBeforePublish(v),
-                    ),
-
-                    // Kids toggle
-                    _buildToggleTile(
-                      icon: Icons.child_care,
-                      label: t('made_for_kids'),
-                      value: project.madeForKids,
-                      onChanged: (v) => app.setMadeForKids(v),
                     ),
 
                     const SizedBox(height: 8),
@@ -730,6 +702,59 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             );
           }),
+          const SizedBox(height: 10),
+        ],
+      ),
+    );
+  }
+
+  void _showKidsPicker(BuildContext context, AppProvider app) {
+    final t = Translations.t;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              t('made_for_kids'),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
+          ),
+          const Divider(height: 1),
+          ListTile(
+            leading: Icon(
+              Icons.block,
+              color: !app.project.madeForKids ? AppTheme.primary : AppTheme.textSecondary,
+            ),
+            title: Text(t('no')),
+            trailing: !app.project.madeForKids
+                ? const Icon(Icons.check, color: AppTheme.primary)
+                : null,
+            onTap: () {
+              app.setMadeForKids(false);
+              Navigator.pop(ctx);
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.child_care,
+              color: app.project.madeForKids ? AppTheme.primary : AppTheme.textSecondary,
+            ),
+            title: Text(t('yes')),
+            trailing: app.project.madeForKids
+                ? const Icon(Icons.check, color: AppTheme.primary)
+                : null,
+            onTap: () {
+              app.setMadeForKids(true);
+              Navigator.pop(ctx);
+            },
+          ),
           const SizedBox(height: 10),
         ],
       ),

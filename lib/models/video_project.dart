@@ -14,8 +14,8 @@ class VideoProject {
   String voiceId = 'original';
   String voiceName = 'Original';
   double voicePitch = 1.0;
-  bool madeForKids = true;
-  bool reviewBeforePublish = false;
+  bool madeForKids = false;
+  bool reviewBeforePublish = true;
   String privacyStatus = 'public'; // public, unlisted, private
   String thumbnailStyle = ''; // 'auto' or 'gallery'
   String thumbnailCustomPrompt = '';
@@ -67,8 +67,8 @@ class VideoProject {
     voiceId = 'original';
     voiceName = 'Original';
     voicePitch = 1.0;
-    madeForKids = true;
-    reviewBeforePublish = false;
+    madeForKids = false;
+    reviewBeforePublish = true;
     privacyStatus = 'public';
     thumbnailStyle = '';
     thumbnailCustomPrompt = '';
