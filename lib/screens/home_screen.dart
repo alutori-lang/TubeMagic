@@ -132,6 +132,78 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 14),
 
+                    // YouTube connect banner for Apple users
+                    if (auth.isAppleUser && !auth.isYoutubeConnected)
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(bottom: 14),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: Colors.red.shade200),
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(Icons.play_circle_outline,
+                                size: 40, color: Colors.red.shade600),
+                            const SizedBox(height: 10),
+                            Text(
+                              t('connect_youtube_title'),
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.red.shade800,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              t('connect_youtube_desc'),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.red.shade600,
+                                height: 1.4,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: auth.isLoading
+                                    ? null
+                                    : () => _handleConnectYouTube(context, auth),
+                                icon: Image.network(
+                                  'https://developers.google.com/identity/images/g-logo.png',
+                                  width: 18,
+                                  height: 18,
+                                  errorBuilder: (_, _, _) => const Icon(
+                                    Icons.g_mobiledata,
+                                    size: 20,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                label: Text(
+                                  t('connect_youtube_button'),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red.shade600,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
                     // Big Upload Button
                     Center(
                       child: PulsingUploadButton(
@@ -368,7 +440,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     : 'AI generates title, description, tags & thumbnail',
                 icon: app.isGenerating ? null : Icons.rocket_launch,
                 isLoading: app.isGenerating,
-                onPressed: _selectedVideos.isEmpty || app.isGenerating
+                onPressed: _selectedVideos.isEmpty || app.isGenerating || (auth.isAppleUser && !auth.isYoutubeConnected)
                     ? null
                     : () => _startProcess(context, app, auth),
               ),
@@ -874,6 +946,19 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       }
+    }
+  }
+
+  Future<void> _handleConnectYouTube(BuildContext context, AuthService auth) async {
+    final success = await auth.connectYouTube();
+    if (!success && context.mounted) {
+      final errorMsg = auth.lastError ?? Translations.t('sign_in_failed');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMsg),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 

@@ -28,6 +28,8 @@ class AuthService extends ChangeNotifier {
   http.Client? get authClient => _authClient;
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _currentUser != null || _isAppleUser;
+  bool get isAppleUser => _isAppleUser;
+  bool get isYoutubeConnected => _authClient != null;
   String? get channelName => _channelName;
   String? get channelAvatar => _channelAvatar;
   String? get channelId => _channelId;
@@ -179,6 +181,33 @@ class AuthService extends ChangeNotifier {
       return true;
     } catch (e) {
       debugPrint('Apple Sign-in error: $e');
+      _lastError = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Connect YouTube channel for Apple users (Google OAuth for YouTube API only)
+  Future<bool> connectYouTube() async {
+    _isLoading = true;
+    _lastError = null;
+    notifyListeners();
+    try {
+      final account = await _googleSignIn.signIn();
+      if (account != null) {
+        _currentUser = account;
+        await _setupAuthClient();
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      }
+      _lastError = 'YouTube connection cancelled';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      debugPrint('YouTube connect error: $e');
       _lastError = e.toString();
       _isLoading = false;
       notifyListeners();
