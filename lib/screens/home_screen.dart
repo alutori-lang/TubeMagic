@@ -72,6 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   PopupMenuButton<String>(
                     onSelected: (value) {
                       if (value == 'logout') _handleLogout(context, auth);
+                      if (value == 'delete_account') _handleDeleteAccount(context, auth);
                     },
                     itemBuilder: (_) => [
                       PopupMenuItem(
@@ -89,6 +90,17 @@ class _HomeScreenState extends State<HomeScreen> {
                             const Icon(Icons.logout, size: 18, color: Colors.red),
                             const SizedBox(width: 8),
                             Text(t('sign_out'),
+                                style: const TextStyle(color: Colors.red)),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'delete_account',
+                        child: Row(
+                          children: [
+                            const Icon(Icons.delete_forever, size: 18, color: Colors.red),
+                            const SizedBox(width: 8),
+                            Text(t('delete_account'),
                                 style: const TextStyle(color: Colors.red)),
                           ],
                         ),
@@ -968,6 +980,36 @@ class _HomeScreenState extends State<HomeScreen> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const LoginScreen()),
       );
+    }
+  }
+
+  void _handleDeleteAccount(BuildContext context, AuthService auth) async {
+    final t = Translations.t;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t('delete_account')),
+        content: Text(t('delete_account_message')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(t('cancel')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(t('delete'),
+                style: const TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await auth.deleteAccount();
+      if (context.mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+        );
+      }
     }
   }
 }

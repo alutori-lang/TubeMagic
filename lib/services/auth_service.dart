@@ -228,4 +228,21 @@ class AuthService extends ChangeNotifier {
     _isAppleUser = false;
     notifyListeners();
   }
+
+  Future<void> deleteAccount() async {
+    // Revoke Google access and disconnect the account
+    if (_currentUser != null) {
+      await _googleSignIn.disconnect();
+    }
+    _currentUser = null;
+    _authClient = null;
+    _channelName = null;
+    _channelAvatar = null;
+    _channelId = null;
+    _channelSubscribers = null;
+    _channelViews = null;
+    _channelVideos = null;
+    _isAppleUser = false;
+    notifyListeners();
+  }
 }
