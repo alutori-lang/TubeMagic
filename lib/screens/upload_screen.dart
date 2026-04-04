@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../services/app_provider.dart';
 import '../services/auth_service.dart';
 import '../services/youtube_service.dart';
+import '../services/usage_limit_service.dart';
 import '../utils/app_theme.dart';
 import '../utils/translations.dart';
 import '../widgets/gradient_button.dart';
@@ -102,6 +103,7 @@ class _UploadScreenState extends State<UploadScreen>
       );
 
       if (videoId != null) {
+        await UsageLimitService.recordUpload();
         app.setYoutubeResult(videoId);
         setState(() {
           _isDone = true;

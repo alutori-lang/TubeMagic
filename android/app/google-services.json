@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "432893007391",
+    "project_id": "tuberocket-a4b6e",
+    "storage_bucket": "tuberocket-a4b6e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:432893007391:android:860ec9629da7d414ece72a",
+        "android_client_info": {
+          "package_name": "com.ytautopub.yt_autopub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCtxrIbEMZFuk938-w2967FojkPJDxFZA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

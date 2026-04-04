@@ -4,9 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class AiService {
-  // Groq API - free tier (Whisper + Llama)
-  static const String _apiKey = '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';
-  static const String _apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
+  // Gemini API - free tier (audio understanding + text generation)
+  static const String _apiKey = 'AIzaSyDAeirEjjzscmrZ9zebRt8yh1tOTyIpuG8';
+  static const String _geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+
+  // Keep Groq as fallback for Whisper transcription (Gemini handles audio natively but Whisper is more reliable for transcription-only)
+  static const String _groqKey = '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';
   static const String _whisperUrl = 'https://api.groq.com/openai/v1/audio/transcriptions';
 
   /// Transcribes audio from a video file using Whisper API
@@ -122,7 +125,7 @@ class AiService {
     try {
       final whisperStart = DateTime.now();
       final request = http.MultipartRequest('POST', Uri.parse(_whisperUrl));
-      request.headers['Authorization'] = 'Bearer $_apiKey';
+      request.headers['Authorization'] = 'Bearer $_groqKey';
       request.fields['model'] = 'whisper-large-v3';
       request.fields['response_format'] = 'text';
       request.fields['temperature'] = '0';
@@ -608,27 +611,33 @@ Return ONLY valid JSON, no other text.
 
     try {
       final llmStart = DateTime.now();
+
+      // Build system instruction based on mode
+      final systemInstruction = hasRealTitle
+          ? 'You are the world\'s best YouTube SEO expert AND music/entertainment encyclopedia. The user has a video downloaded from social media with a REAL title in the filename. Use that title exactly. You MUST identify the artist/singer/speaker accurately. CRITICAL: You must know the artist\'s REAL genre, REAL biography, and where they are from. NEVER guess genres - Talib Hussain Dard is a Punjabi FOLK singer not Sufi, Nusrat Fateh Ali Khan is a Qawwal, etc. If you don\'t know an artist well, use generic terms. Write accurate biographies in descriptions. ALL output romanized Latin A-Z only. JSON only.'
+          : transcription != null
+              ? 'You are the world\'s best YouTube SEO expert. ABSOLUTE RULE: The title MUST start with the FIRST 11 WORDS from the video transcription, romanized to Latin A-Z. Copy the actual spoken/sung words - NEVER replace them with summary words like "Mousiqi", "Music", "Song". The detected audio language tells you the culture. Nationality must match language (Urdu=Pakistani, Punjabi=Pakistani/Indian, Arabic=Arab). ALL output romanized Latin A-Z only. JSON only.'
+              : 'You are the world\'s best YouTube SEO expert. Your goal: make videos GO VIRAL with perfect titles, descriptions, and tags. CRITICAL: ALL output in ROMANIZED Latin letters (A-Z) only. No native scripts. Respond with valid JSON only.';
+
       final response = await http.post(
-        Uri.parse(_apiUrl),
+        Uri.parse('$_geminiUrl?key=$_apiKey'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $_apiKey',
         },
         body: jsonEncode({
-          'model': 'llama-3.3-70b-versatile',
-          'messages': [
+          'system_instruction': {
+            'parts': [{'text': systemInstruction}],
+          },
+          'contents': [
             {
-              'role': 'system',
-              'content': hasRealTitle
-                  ? 'You are the world\'s best YouTube SEO expert AND music/entertainment encyclopedia. The user has a video downloaded from social media with a REAL title in the filename. Use that title exactly. You MUST identify the artist/singer/speaker accurately. CRITICAL: You must know the artist\'s REAL genre, REAL biography, and where they are from. NEVER guess genres - Talib Hussain Dard is a Punjabi FOLK singer not Sufi, Nusrat Fateh Ali Khan is a Qawwal, etc. If you don\'t know an artist well, use generic terms. Write accurate biographies in descriptions. ALL output romanized Latin A-Z only. JSON only.'
-                  : transcription != null
-                      ? 'You are the world\'s best YouTube SEO expert. ABSOLUTE RULE: The title MUST start with the FIRST 11 WORDS from the video transcription, romanized to Latin A-Z. Copy the actual spoken/sung words - NEVER replace them with summary words like "Mousiqi", "Music", "Song". The detected audio language tells you the culture. Nationality must match language (Urdu=Pakistani, Punjabi=Pakistani/Indian, Arabic=Arab). ALL output romanized Latin A-Z only. JSON only.'
-                      : 'You are the world\'s best YouTube SEO expert. Your goal: make videos GO VIRAL with perfect titles, descriptions, and tags. CRITICAL: ALL output in ROMANIZED Latin letters (A-Z) only. No native scripts. Respond with valid JSON only.',
+              'parts': [{'text': prompt}],
             },
-            {'role': 'user', 'content': prompt},
           ],
-          'temperature': 0.4,
-          'max_tokens': 2000,
+          'generationConfig': {
+            'temperature': 0.4,
+            'maxOutputTokens': 2000,
+            'responseMimeType': 'application/json',
+          },
         }),
       );
 
@@ -637,7 +646,7 @@ Return ONLY valid JSON, no other text.
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final content = data['choices'][0]['message']['content'] as String;
+        final content = data['candidates'][0]['content']['parts'][0]['text'] as String;
         String cleanContent = content
             .replaceAll('```json', '')
             .replaceAll('```', '')

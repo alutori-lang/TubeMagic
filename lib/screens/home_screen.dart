@@ -18,6 +18,7 @@ import 'review_screen.dart';
 import 'upload_screen.dart';
 import 'batch_upload_screen.dart';
 import 'login_screen.dart';
+import '../services/usage_limit_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -874,6 +875,37 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _startProcess(
       BuildContext context, AppProvider app, AuthService auth) async {
+    // Check daily upload limit
+    final canUpload = await UsageLimitService.canUpload();
+    if (!canUpload) {
+      final remaining = await UsageLimitService.getRemainingUploads();
+      if (!context.mounted) return;
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Daily Limit Reached'),
+          content: const Text(
+            'You\'ve used all 3 free uploads today.\n\n'
+            'Upgrade to Premium for unlimited uploads!',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('OK'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                // TODO: Navigate to premium purchase screen
+              },
+              child: const Text('Go Premium'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
     // BATCH MODE: navigate to batch upload screen
     if (_selectedVideos.length > 1) {
       Navigator.push(
