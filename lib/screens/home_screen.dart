@@ -19,6 +19,7 @@ import 'upload_screen.dart';
 import 'batch_upload_screen.dart';
 import 'login_screen.dart';
 import '../services/usage_limit_service.dart';
+import 'premium_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -72,6 +73,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Avatar with gradient
                   PopupMenuButton<String>(
                     onSelected: (value) {
+                      if (value == 'premium') {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const PremiumScreen()));
+                      }
                       if (value == 'logout') _handleLogout(context, auth);
                       if (value == 'delete_account') _handleDeleteAccount(context, auth);
                     },
@@ -82,6 +86,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Text(
                           auth.channelName ?? t('my_channel'),
                           style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      const PopupMenuItem(
+                        value: 'premium',
+                        child: Row(
+                          children: [
+                            Icon(Icons.star, size: 18, color: Color(0xFFFFD700)),
+                            SizedBox(width: 8),
+                            Text('Go Premium', style: TextStyle(color: Color(0xFFFFD700), fontWeight: FontWeight.bold)),
+                          ],
                         ),
                       ),
                       PopupMenuItem(
@@ -896,7 +910,10 @@ class _HomeScreenState extends State<HomeScreen> {
             FilledButton(
               onPressed: () {
                 Navigator.pop(ctx);
-                // TODO: Navigate to premium purchase screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PremiumScreen()),
+                );
               },
               child: const Text('Go Premium'),
             ),

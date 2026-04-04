@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'services/auth_service.dart';
 import 'services/app_provider.dart';
+import 'services/billing_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'utils/app_theme.dart';
@@ -26,6 +27,7 @@ class TubeRocketApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthService()),
         ChangeNotifierProvider(create: (_) => AppProvider()),
+        ChangeNotifierProvider(create: (_) => BillingService()),
       ],
       child: MaterialApp(
         title: 'TubeRocket',
