@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TubeRocket - AI Video Uploader for YouTube</title>
+    <meta name="description" content="Upload YouTube videos with AI-generated titles, descriptions, tags and thumbnails. Save hours on every upload. Free for 3 videos/day.">
+    <meta name="keywords" content="youtube uploader, ai video uploader, auto youtube title, youtube tags generator, batch upload youtube, video publisher, content creator tool">
+    <link rel="canonical" href="https://tuberocket.app">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="TubeRocket - AI Video Uploader for YouTube">
+    <meta property="og:description" content="Upload YouTube videos with AI-generated titles, descriptions, tags and thumbnails in seconds.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tuberocket.app">
+    <meta property="og:image" content="https://tuberocket.app/og-image.png">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="TubeRocket - AI Video Uploader">
+    <meta name="twitter:description" content="Upload YouTube videos with AI-generated titles, tags & thumbnails in seconds.">
+
+    <link rel="icon" type="image/png" href="icon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #FF5252;
+            --primary-dark: #D32F2F;
+            --bg: #0D0D0D;
+            --bg2: #1A1A1A;
+            --bg3: #252525;
+            --text: #FFFFFF;
+            --text2: #B0B0B0;
+            --gold: #FFD700;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* NAV */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: rgba(13,13,13,0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+        .logo span { color: var(--text); }
+        .nav-btn {
+            background: var(--primary);
+            color: white;
+            padding: 10px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+        .nav-btn:hover { transform: scale(1.05); }
+
+        /* HERO */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 24px 80px;
+            background: radial-gradient(ellipse at top, rgba(255,82,82,0.15) 0%, transparent 60%);
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,82,82,0.1);
+            border: 1px solid rgba(255,82,82,0.3);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            color: var(--primary);
+            margin-bottom: 32px;
+        }
+        h1 {
+            font-size: clamp(40px, 7vw, 72px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            max-width: 800px;
+        }
+        h1 .highlight { color: var(--primary); }
+        .hero p {
+            font-size: 20px;
+            color: var(--text2);
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            padding: 16px 40px;
+            border-radius: 16px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 18px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,82,82,0.4); }
+        .btn-secondary {
+            background: rgba(255,255,255,0.05);
+            color: white;
+            padding: 16px 40px;
+            border-radius: 16px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 18px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+        .hero-stats {
+            display: flex;
+            gap: 48px;
+            margin-top: 60px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .stat { text-align: center; }
+        .stat-num { font-size: 32px; font-weight: 800; color: var(--primary); }
+        .stat-label { font-size: 14px; color: var(--text2); }
+
+        /* HOW IT WORKS */
+        .section {
+            padding: 100px 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-title {
+            text-align: center;
+            font-size: clamp(28px, 4vw, 44px);
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        .section-sub {
+            text-align: center;
+            font-size: 18px;
+            color: var(--text2);
+            margin-bottom: 60px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* STEPS */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+        .step {
+            background: var(--bg2);
+            border-radius: 24px;
+            padding: 40px 32px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: transform 0.3s;
+        }
+        .step:hover { transform: translateY(-8px); }
+        .step-num {
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0 auto 20px;
+        }
+        .step h3 { font-size: 20px; margin-bottom: 12px; }
+        .step p { color: var(--text2); font-size: 15px; }
+
+        /* FEATURES */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        .feature {
+            background: var(--bg2);
+            border-radius: 20px;
+            padding: 32px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s;
+        }
+        .feature:hover { border-color: var(--primary); transform: translateY(-4px); }
+        .feature-icon {
+            font-size: 36px;
+            margin-bottom: 16px;
+        }
+        .feature h3 { font-size: 18px; margin-bottom: 8px; }
+        .feature p { color: var(--text2); font-size: 14px; }
+
+        /* PRICING */
+        .pricing {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .price-card {
+            background: var(--bg2);
+            border-radius: 24px;
+            padding: 40px 32px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+        }
+        .price-card.popular {
+            border: 2px solid var(--primary);
+            background: linear-gradient(135deg, rgba(255,82,82,0.05), var(--bg2));
+        }
+        .popular-badge {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 6px 20px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .price-name { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+        .price-amount { font-size: 48px; font-weight: 900; margin: 16px 0; }
+        .price-amount span { font-size: 18px; font-weight: 400; color: var(--text2); }
+        .price-features { list-style: none; text-align: left; margin: 24px 0; }
+        .price-features li {
+            padding: 10px 0;
+            font-size: 15px;
+            color: var(--text2);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .check { color: #4CAF50; font-size: 18px; }
+        .cross { color: #666; font-size: 18px; }
+
+        /* LANGUAGES */
+        .languages {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .lang-tag {
+            background: var(--bg3);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            color: var(--text2);
+        }
+
+        /* FAQ */
+        .faq-list { max-width: 700px; margin: 0 auto; }
+        .faq-item {
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 24px 0;
+        }
+        .faq-q {
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .faq-a {
+            color: var(--text2);
+            font-size: 15px;
+            margin-top: 12px;
+            display: none;
+        }
+        .faq-item.active .faq-a { display: block; }
+        .faq-item.active .faq-arrow { transform: rotate(180deg); }
+        .faq-arrow { transition: transform 0.3s; font-size: 20px; }
+
+        /* CTA */
+        .cta-section {
+            text-align: center;
+            padding: 100px 24px;
+            background: radial-gradient(ellipse at bottom, rgba(255,82,82,0.15) 0%, transparent 60%);
+        }
+        .cta-section h2 { font-size: clamp(28px, 4vw, 44px); font-weight: 800; margin-bottom: 16px; }
+        .cta-section p { color: var(--text2); font-size: 18px; margin-bottom: 40px; }
+
+        /* FOOTER */
+        footer {
+            padding: 40px 24px;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            color: var(--text2);
+            font-size: 14px;
+        }
+        footer a { color: var(--text2); text-decoration: none; margin: 0 16px; }
+        footer a:hover { color: var(--primary); }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            nav { padding: 12px 16px; }
+            .steps { grid-template-columns: 1fr; }
+            .features { grid-template-columns: 1fr; }
+            .pricing { grid-template-columns: 1fr; }
+            .hero-stats { gap: 24px; }
+            .cta-buttons { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAV -->
+    <nav>
+        <div class="logo">Tube<span>Rocket</span></div>
+        <a href="https://play.google.com/store/apps/details?id=com.ytautopub.yt_autopub" class="nav-btn">Download Free</a>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="badge">Powered by AI</div>
+        <h1>Upload YouTube Videos <span class="highlight">Like a Rocket</span></h1>
+        <p>AI generates titles, descriptions, tags and thumbnails for your YouTube videos. Just pick a video and tap Launch.</p>
+        <div class="cta-buttons">
+            <a href="https://play.google.com/store/apps/details?id=com.ytautopub.yt_autopub" class="btn-primary">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 01-.61-.92V2.734a1 1 0 01.609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.302 2.302a1 1 0 010 1.38l-2.302 2.302L15.396 12l2.302-2.492zM5.864 2.658L16.8 9.191l-2.302 2.302L5.864 2.658z"/></svg>
+                Google Play
+            </a>
+            <a href="#features" class="btn-secondary">See Features</a>
+        </div>
+        <div class="hero-stats">
+            <div class="stat">
+                <div class="stat-num">18</div>
+                <div class="stat-label">Languages</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">10</div>
+                <div class="stat-label">Batch Upload</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">1 Tap</div>
+                <div class="stat-label">To Publish</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section">
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-sub">Three simple steps. No manual work. Just pure AI magic.</p>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <h3>Pick Your Video</h3>
+                <p>Select any video from your device. TubeRocket supports all formats and sizes up to 25MB for AI analysis.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <h3>AI Does the Work</h3>
+                <p>Our AI listens to your video, understands the content, and generates SEO-optimized title, description, tags and thumbnail.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <h3>Review & Publish</h3>
+                <p>Check the AI-generated metadata, edit if needed, and publish directly to your YouTube channel. Done!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="section" id="features">
+        <h2 class="section-title">Powerful Features</h2>
+        <p class="section-sub">Everything you need to upload YouTube videos faster and smarter.</p>
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">&#127775;</div>
+                <h3>SEO-Optimized Titles</h3>
+                <p>AI generates click-worthy titles that rank higher in YouTube search results.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">&#128196;</div>
+                <h3>Smart Descriptions</h3>
+                <p>Keyword-rich descriptions that boost your video discoverability automatically.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">&#127991;</div>
+                <h3>Auto Tags</h3>
+                <p>Up to 50 relevant tags generated from your video content for maximum reach.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">&#127916;</div>
+                <h3>Batch Upload</h3>
+                <p>Upload up to 10 videos at once. Each gets unique AI-generated metadata.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">&#127908;</div>
+                <h3>AI Transcription</h3>
+                <p>AI listens to your video and understands the content for accurate metadata.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">&#127760;</div>
+                <h3>18 Languages</h3>
+                <p>Create content in English, Spanish, Hindi, Arabic, Urdu, French, and 12 more languages.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING -->
+    <section class="section" id="pricing">
+        <h2 class="section-title">Simple Pricing</h2>
+        <p class="section-sub">Start free. Upgrade when you're ready.</p>
+        <div class="pricing">
+            <div class="price-card">
+                <div class="price-name">Free</div>
+                <div class="price-amount">$0<span>/forever</span></div>
+                <ul class="price-features">
+                    <li><span class="check">&#10003;</span> 3 uploads per day</li>
+                    <li><span class="check">&#10003;</span> AI titles & descriptions</li>
+                    <li><span class="check">&#10003;</span> AI tags generation</li>
+                    <li><span class="check">&#10003;</span> Single video upload</li>
+                    <li><span class="cross">&#10007;</span> Batch upload</li>
+                    <li><span class="cross">&#10007;</span> All 18 languages</li>
+                </ul>
+                <a href="https://play.google.com/store/apps/details?id=com.ytautopub.yt_autopub" class="btn-secondary" style="display:block;text-align:center;">Get Started Free</a>
+            </div>
+            <div class="price-card popular">
+                <div class="popular-badge">MOST POPULAR</div>
+                <div class="price-name">Premium</div>
+                <div class="price-amount">$4.99<span>/month</span></div>
+                <ul class="price-features">
+                    <li><span class="check">&#10003;</span> Unlimited uploads</li>
+                    <li><span class="check">&#10003;</span> AI titles & descriptions</li>
+                    <li><span class="check">&#10003;</span> AI tags generation</li>
+                    <li><span class="check">&#10003;</span> Batch upload (10 videos)</li>
+                    <li><span class="check">&#10003;</span> All 18 languages</li>
+                    <li><span class="check">&#10003;</span> Priority support</li>
+                </ul>
+                <a href="https://play.google.com/store/apps/details?id=com.ytautopub.yt_autopub" class="btn-primary" style="display:block;text-align:center;padding:14px;">Go Premium</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- LANGUAGES -->
+    <section class="section">
+        <h2 class="section-title">18 Languages Supported</h2>
+        <p class="section-sub">Create content for a global audience.</p>
+        <div class="languages">
+            <span class="lang-tag">English</span>
+            <span class="lang-tag">Italian</span>
+            <span class="lang-tag">Spanish</span>
+            <span class="lang-tag">French</span>
+            <span class="lang-tag">German</span>
+            <span class="lang-tag">Portuguese</span>
+            <span class="lang-tag">Hindi</span>
+            <span class="lang-tag">Arabic</span>
+            <span class="lang-tag">Urdu</span>
+            <span class="lang-tag">Punjabi</span>
+            <span class="lang-tag">Bengali</span>
+            <span class="lang-tag">Japanese</span>
+            <span class="lang-tag">Korean</span>
+            <span class="lang-tag">Chinese</span>
+            <span class="lang-tag">Russian</span>
+            <span class="lang-tag">Turkish</span>
+            <span class="lang-tag">Dutch</span>
+            <span class="lang-tag">Polish</span>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section">
+        <h2 class="section-title">FAQ</h2>
+        <p class="section-sub">Got questions? We've got answers.</p>
+        <div class="faq-list">
+            <div class="faq-item" onclick="this.classList.toggle('active')">
+                <div class="faq-q">Is TubeRocket free? <span class="faq-arrow">&#9660;</span></div>
+                <div class="faq-a">Yes! You get 3 free uploads every day. No credit card needed. Premium ($4.99/month) unlocks unlimited uploads and batch mode.</div>
+            </div>
+            <div class="faq-item" onclick="this.classList.toggle('active')">
+                <div class="faq-q">How does the AI generate metadata? <span class="faq-arrow">&#9660;</span></div>
+                <div class="faq-a">TubeRocket uses advanced AI to transcribe and understand your video content. It then generates SEO-optimized titles, descriptions, tags, and hashtags based on what your video is actually about.</div>
+            </div>
+            <div class="faq-item" onclick="this.classList.toggle('active')">
+                <div class="faq-q">Is my YouTube account safe? <span class="faq-arrow">&#9660;</span></div>
+                <div class="faq-a">Absolutely. TubeRocket uses official Google OAuth for authentication. We never store your password. You can revoke access anytime from your Google account settings.</div>
+            </div>
+            <div class="faq-item" onclick="this.classList.toggle('active')">
+                <div class="faq-q">Can I edit the AI-generated content? <span class="faq-arrow">&#9660;</span></div>
+                <div class="faq-a">Yes! TubeRocket shows you everything before publishing. You can review and edit the title, description, tags, privacy settings, and thumbnail before uploading.</div>
+            </div>
+            <div class="faq-item" onclick="this.classList.toggle('active')">
+                <div class="faq-q">What languages are supported? <span class="faq-arrow">&#9660;</span></div>
+                <div class="faq-a">TubeRocket supports 18 languages including English, Italian, Spanish, French, German, Portuguese, Hindi, Arabic, Urdu, Punjabi, Bengali, Japanese, Korean, Chinese, Russian, Turkish, Dutch, and Polish.</div>
+            </div>
+            <div class="faq-item" onclick="this.classList.toggle('active')">
+                <div class="faq-q">Does it work with any YouTube channel? <span class="faq-arrow">&#9660;</span></div>
+                <div class="faq-a">Yes. Just sign in with the Google account connected to your YouTube channel. TubeRocket works with any YouTube channel, including brand accounts.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FINAL CTA -->
+    <section class="cta-section">
+        <h2>Ready to Launch Your Videos?</h2>
+        <p>Join thousands of creators who save hours every week with TubeRocket.</p>
+        <a href="https://play.google.com/store/apps/details?id=com.ytautopub.yt_autopub" class="btn-primary">
+            Download Free on Google Play
+        </a>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p style="margin-bottom:16px;">
+            <a href="privacy-policy.html">Privacy Policy</a>
+            <a href="mailto:tuberocket.app@gmail.com">Contact</a>
+            <a href="https://play.google.com/store/apps/details?id=com.ytautopub.yt_autopub">Google Play</a>
+        </p>
+        <p>&copy; 2026 TubeRocket. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
